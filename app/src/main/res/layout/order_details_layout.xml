@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:elevation="3dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp">
+
+    <ImageView
+        android:id="@+id/product_image_in_order_details"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/product_image" />
+
+    <TextView
+        android:id="@+id/product_title_in_order_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Anjali Singh"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/product_price_in_order_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Product price"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/product_image_in_order_details"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/product_quantity_in_order_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/border_background"
+        android:backgroundTint="#000000"
+        android:padding="3dp"
+        android:text="Qty: 1"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="@+id/product_image_in_order_details"
+        app:layout_constraintEnd_toStartOf="@+id/product_image_in_order_details" />
+
+    <View
+        android:id="@+id/divider7"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/product_image_in_order_details" />
+
+    <ImageView
+        android:id="@+id/ordered_indicator"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider7"
+        app:srcCompat="@drawable/selected_dot"
+        app:tint="@color/RecyclerViewBackground" />
+
+    <ProgressBar
+        android:id="@+id/ordered_confirmed_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="60dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginTop="8dp"
+        android:progress="0"
+        android:progressBackgroundTint="@color/RecyclerViewBackground"
+        android:progressTint="@color/successGreen"
+        android:rotation="90"
+        android:transformPivotX="0dp"
+        app:layout_constraintStart_toStartOf="@+id/ordered_indicator"
+        app:layout_constraintTop_toTopOf="@+id/ordered_indicator" />
+
+    <ImageView
+        android:id="@+id/confirmed_indicator"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ordered_indicator"
+        app:srcCompat="@drawable/selected_dot"
+        app:tint="@color/RecyclerViewBackground" />
+
+    <ProgressBar
+        android:id="@+id/confirmed_cooked_indicator"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="60dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginTop="8dp"
+        android:progress="0"
+        android:progressBackgroundTint="@color/RecyclerViewBackground"
+        android:progressTint="@color/successGreen"
+        android:rotation="90"
+        android:transformPivotX="0dp"
+        app:layout_constraintStart_toStartOf="@+id/confirmed_indicator"
+        app:layout_constraintTop_toTopOf="@+id/confirmed_indicator" />
+
+    <ImageView
+        android:id="@+id/cooked_indicator"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirmed_indicator"
+        app:srcCompat="@drawable/selected_dot"
+        app:tint="@color/RecyclerViewBackground" />
+
+    <ProgressBar
+        android:id="@+id/cooked_ready_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="60dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginTop="8dp"
+        android:progress="0"
+        android:progressBackgroundTint="@color/RecyclerViewBackground"
+        android:progressTint="@color/successGreen"
+        android:rotation="90"
+        android:transformPivotX="0dp"
+        app:layout_constraintStart_toStartOf="@+id/cooked_indicator"
+        app:layout_constraintTop_toTopOf="@+id/cooked_indicator" />
+
+    <ImageView
+        android:id="@+id/ready_to_eat_indicator"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cooked_indicator"
+        app:srcCompat="@drawable/selected_dot"
+        app:tint="@color/RecyclerViewBackground" />
+
+    <TextView
+        android:id="@+id/textView20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Ordered"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ordered_indicator"
+        app:layout_constraintStart_toEndOf="@+id/ordered_indicator"
+        app:layout_constraintTop_toTopOf="@+id/ordered_indicator" />
+
+    <TextView
+        android:id="@+id/ordered_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Monday 10th March 2021 - 7:00 a.m."
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView20"
+        app:layout_constraintStart_toEndOf="@+id/textView20"
+        app:layout_constraintTop_toTopOf="@+id/textView20" />
+
+    <TextView
+        android:id="@+id/ordered_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="You have requested to book the Chef"
+        android:textColor="#000000"
+        android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="@+id/textView20"
+        app:layout_constraintTop_toBottomOf="@+id/textView20" />
+
+    <TextView
+        android:id="@+id/confirmed_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Confirmed"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/confirmed_indicator"
+        app:layout_constraintStart_toEndOf="@+id/confirmed_indicator"
+        app:layout_constraintTop_toTopOf="@+id/confirmed_indicator" />
+
+    <TextView
+        android:id="@+id/confirmed_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Monday 10th March 2021 - 7:00 a.m."
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/confirmed_title"
+        app:layout_constraintStart_toEndOf="@+id/confirmed_title"
+        app:layout_constraintTop_toTopOf="@+id/confirmed_title" />
+
+    <TextView
+        android:id="@+id/confirmed_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="The Chef has confirmed your order"
+        android:textColor="#000000"
+        android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="@+id/confirmed_title"
+        app:layout_constraintTop_toBottomOf="@+id/confirmed_title" />
+
+    <TextView
+        android:id="@+id/cooking_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Being Cooked"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/cooked_indicator"
+        app:layout_constraintStart_toEndOf="@+id/cooked_indicator"
+        app:layout_constraintTop_toTopOf="@+id/cooked_indicator" />
+
+    <TextView
+        android:id="@+id/cooking_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Monday 10th March 2021 - 7:00 a.m."
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/cooking_title"
+        app:layout_constraintStart_toEndOf="@+id/cooking_title"
+        app:layout_constraintTop_toTopOf="@+id/cooking_title" />
+
+    <TextView
+        android:id="@+id/cooking_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Your order is being cooked."
+        android:textColor="#000000"
+        android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="@+id/cooking_title"
+        app:layout_constraintTop_toBottomOf="@+id/cooking_title" />
+
+    <TextView
+        android:id="@+id/ready_to_eat_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Ready To eat"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ready_to_eat_indicator"
+        app:layout_constraintStart_toEndOf="@+id/ready_to_eat_indicator"
+        app:layout_constraintTop_toTopOf="@+id/ready_to_eat_indicator" />
+
+    <TextView
+        android:id="@+id/ready_to_eat_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Monday 10th March 2021 - 7:00 a.m."
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ready_to_eat_title"
+        app:layout_constraintStart_toEndOf="@+id/ready_to_eat_title"
+        app:layout_constraintTop_toTopOf="@+id/ready_to_eat_title" />
+
+    <TextView
+        android:id="@+id/ready_to_eat_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="#000000"
+        android:textSize="10sp"
+        android:text="Your food is ready to eat!!"
+        app:layout_constraintStart_toStartOf="@+id/ready_to_eat_title"
+        app:layout_constraintTop_toBottomOf="@+id/ready_to_eat_title" />
+
+    <LinearLayout
+        android:id="@+id/rate_now_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView32">
+
+        <ImageView
+            android:id="@+id/imageView11"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/star"
+            app:tint="#bebebe" />
+
+        <ImageView
+            android:id="@+id/imageView12"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/star"
+            app:tint="#bebebe" />
+
+        <ImageView
+            android:id="@+id/imageView13"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/star"
+            app:tint="#bebebe" />
+
+        <ImageView
+            android:id="@+id/imageView14"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/star"
+            app:tint="#bebebe" />
+
+        <ImageView
+            android:id="@+id/imageView15"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/star"
+            app:tint="#bebebe" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider8"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ready_to_eat_body" />
+
+    <TextView
+        android:id="@+id/textView32"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Your ratings"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider8" />
+</androidx.constraintlayout.widget.ConstraintLayout>

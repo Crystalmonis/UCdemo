@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "639746396629",
+    "project_id": "ucdemo-7c247",
+    "storage_bucket": "ucdemo-7c247.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639746396629:android:8f7ad12730834e2c32ed5c",
+        "android_client_info": {
+          "package_name": "com.example.ucdemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639746396629-gh05c5mp0dh8s0l63g14t3cuj5oanhu2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCU0dtS_H4s18LKoFeVPbIecL655Zp4dOE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639746396629-gh05c5mp0dh8s0l63g14t3cuj5oanhu2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
