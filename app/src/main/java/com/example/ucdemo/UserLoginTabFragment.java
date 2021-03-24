@@ -171,7 +171,7 @@ public class UserLoginTabFragment extends Fragment {
         if(UserLoginActivity.disableCloseBtn){
             UserLoginActivity.disableCloseBtn=false;
         }else {
-            startActivity(new Intent(getActivity(),MainActivity.class));
+            startActivity(new Intent(getActivity(),UserMainPage.class));
         }
         getActivity().finish();
     }
