@@ -25,6 +25,8 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,7 +43,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import static com.example.ucdemo.DBqueries.currentUser;
 
 
 public class UserMainPage extends AppCompatActivity {
@@ -56,6 +57,7 @@ public class UserMainPage extends AppCompatActivity {
     public static boolean showCart = false;
     ActionBarDrawerToggle toggle;
     private Dialog signInDialog;
+    private FirebaseUser currentUser;
 
     NavigationView navigationView;
 
@@ -102,11 +104,7 @@ public class UserMainPage extends AppCompatActivity {
             setFragment(new HomeFragment(), HomeFragment);
         }
 
-        if (currentUser == null) {
-            navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
-        } else {
-            navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(true);
-        }
+
 
         signInDialog = new Dialog(UserMainPage.this);
         signInDialog.setContentView(R.layout.sign_in_dialog);
@@ -165,6 +163,10 @@ public class UserMainPage extends AppCompatActivity {
                         } else if (id == R.id.nav_my_account) {
                             gotoFragment("My Account", new MyAccountFragment(), MYACCOUNT_FRAGMENT);
                         } else if (id == R.id.nav_sign_out) {
+                            FirebaseAuth.getInstance().signOut();
+                            Intent registerIntent = new Intent(UserMainPage.this,UserLoginActivity.class);
+                            startActivity(registerIntent);
+                            finish();
                         }
                         drawer.removeDrawerListener(this);
                     }
@@ -182,6 +184,16 @@ public class UserMainPage extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
+        } else {
+            navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(true);
+        }
+    }
 
     @Override
     public void onBackPressed() {

@@ -17,6 +17,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/user_theme"
             android:theme="@style/ToolbarIcons"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
             app:popupTheme="@style/Theme.UCdemo.PopupOverlay"
             >
 
