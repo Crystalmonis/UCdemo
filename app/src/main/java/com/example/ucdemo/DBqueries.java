@@ -33,10 +33,15 @@ public class DBqueries {
 
     public static List<List<HomePageModel>> lists = new ArrayList<>();
     public static List<String> loadedCategoriesNames = new ArrayList<>();
+
     public static List<String> wishList = new ArrayList<>();
     public static List<WishlistModel> wishlistModelList = new ArrayList<>();
 
+    public static List<String> myRatedIds = new ArrayList<>();
+    public static List<Long> myRating = new ArrayList<>();
+
     public static void loadCategories(RecyclerView categoryRecyclerView, Context context) {
+        categoryModelList.clear();
         firebaseFirestore.collection("CATEGORIES").orderBy("index").get()
                 .addOnCompleteListener((task) -> {
                     if (task.isSuccessful()) {
@@ -84,6 +89,7 @@ public class DBqueries {
                                             , queryDocumentSnapshot.get("product_price_" + x).toString()
                                     ));
                                     viewAllProductList.add(new WishlistModel(
+                                            queryDocumentSnapshot.get("product_ID_" +x).toString(),
                                             queryDocumentSnapshot.get("product_image_" + x).toString()
                                             , queryDocumentSnapshot.get("product_full_title_" + x).toString()
                                             , (long) queryDocumentSnapshot.get("free_coupons_" + x)
@@ -126,12 +132,14 @@ public class DBqueries {
     }
 
     public static void loadWishlist(Context context, Dialog dialog, final boolean loadProductData) {
-        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_DATA").document("MY_WISHLIST")
-                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        wishList.clear();
+        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid())
+                .collection("USER_DATA").document("MY_WISHLIST").get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (long x = 0; x < (long) task.getResult().get("list_size"); x++) {
+                    for (long x=0; x<(long)task.getResult().get("list_size"); x++) {
                         wishList.add(task.getResult().get("product_ID_" + x).toString());
 
                         if (DBqueries.wishList.contains(ProductDetailsActivity.productID)) {
@@ -147,12 +155,15 @@ public class DBqueries {
                         }
 
                         if (loadProductData) {
-                            firebaseFirestore.collection("PRODUCTS").document(task.getResult().get("product_ID_" + x).toString())
+                            wishlistModelList.clear();
+                            String productId = task.getResult().get("product_ID_" + x).toString();
+                            firebaseFirestore.collection("PRODUCTS").document(productId)
                                     .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if (task.isSuccessful()) {
                                         wishlistModelList.add(new WishlistModel(
+                                                productId,
                                                 task.getResult().get("product_image_1").toString()
                                                 , task.getResult().get("product_title").toString()
                                                 , (long) task.getResult().get("free_coupons")
@@ -209,11 +220,36 @@ public class DBqueries {
                             String error = task.getException().getMessage();
                             Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                         }
-                        if (ProductDetailsActivity.addToWishlistBtn != null) {
-                            ProductDetailsActivity.addToWishlistBtn.setEnabled(true);
-                        }
+//                        if (ProductDetailsActivity.addToWishlistBtn != null) {
+//                            ProductDetailsActivity.addToWishlistBtn.setEnabled(true);
+//                        }
+                        ProductDetailsActivity.running_wishlist_query = false;
                     }
                 });
+    }
+
+    public static void loadRatingList(final Context context){
+        myRatedIds.clear();
+        myRating.clear();
+        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_DATA").document("MY_RATINGS")
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    for(long x = 0; x < (long)task.getResult().get("list_size"); x++){
+                        myRatedIds.add(task.getResult().get("product_ID_" +x).toString());
+                        myRating.add((long)task.getResult().get("rating_"+x));
+
+                        if(task.getResult().get("product_ID_" +x).toString().equals(ProductDetailsActivity.productID) && ProductDetailsActivity.rateNowContainer != null){
+                            ProductDetailsActivity.setRating(Integer.parseInt(String.valueOf((long)task.getResult().get("rating_"+x))) - 1);
+                        }
+                    }
+                } else {
+                    String error = task.getException().getMessage();
+                    Toast.makeText(context,error,Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     public static void clearData() {
@@ -223,4 +259,5 @@ public class DBqueries {
         wishList.clear();
         wishlistModelList.clear();
     }
+
 }

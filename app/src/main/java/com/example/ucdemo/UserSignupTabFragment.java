@@ -23,10 +23,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.example.ucdemo.UserLoginActivity.disableCloseBtn;
@@ -195,23 +198,44 @@ public class UserSignupTabFragment extends Fragment {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if(task.isSuccessful()){
-                                                        Map<String, Object> listSize = new HashMap<>();
-                                                        listSize.put("list_size", (long) 0);
-                                                        firebaseFirestore.collection("USERS").document(firebaseAuth.getUid()).collection("USER_DATA").document("MY_WISHLIST")
-                                                                .set(listSize).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                if(task.isSuccessful()){
-                                                                    mainIntent();
-                                                                } else {
-                                                                    signup.setEnabled(true);
-                                                                    signup.setTextColor(Color.rgb(255,255,255));
-                                                                    String error = task.getException().getMessage();
-                                                                    Toast.makeText(getActivity(),error,Toast.LENGTH_SHORT).show();
-                                                                }
-                                                            }
-                                                        });
 
+                                                        CollectionReference userDataReference = firebaseFirestore.collection("USERS").document(firebaseAuth.getUid()).collection("USER_DATA");
+
+                                                        ////////////////MAPS
+                                                        Map<String, Object> wishlistMap = new HashMap<>();
+                                                        wishlistMap.put("list_size", (long) 0);
+
+                                                        Map<String,Object> ratingsMap = new HashMap<>();
+                                                        ratingsMap.put("list_size", (long) 0);
+                                                        ////////////////MAPS
+
+                                                        List<String> documentNames = new ArrayList<>();
+                                                        documentNames.add("MY_WISHLIST");
+                                                        documentNames.add("MY_RATINGS");
+
+                                                        List<Map<String,Object>> documentFields = new ArrayList<>();
+                                                        documentFields.add(wishlistMap);
+                                                        documentFields.add(ratingsMap);
+
+
+                                                        for(int x = 0; x < documentNames.size(); x++){
+                                                            final int finalX = x;
+                                                            userDataReference.document(documentNames.get(x))
+                                                                    .set(documentFields.get(x))
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                    if(finalX == documentFields.size() - 1){
+                                                                        mainIntent();
+                                                                    } else {
+                                                                        signup.setEnabled(true);
+                                                                        signup.setTextColor(Color.rgb(255,255,255));
+                                                                        //String error=task.getException().getMessage();
+                                                                        //Toast.makeText(getActivity(), error,Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
                                                     } else {
                                                         String error = task.getException().getMessage();
                                                         Toast.makeText(getActivity(),error,Toast.LENGTH_SHORT).show();
@@ -219,10 +243,9 @@ public class UserSignupTabFragment extends Fragment {
                                                 }
                                             });
                                 } else {
+                                    Toast.makeText(getActivity(), "Authentication failed.",Toast.LENGTH_SHORT).show();
                                     signup.setEnabled(true);
                                     signup.setTextColor(Color.rgb(255,255,255));
-                                    String error = task.getException().getMessage();
-                                    Toast.makeText(getActivity(),error,Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
