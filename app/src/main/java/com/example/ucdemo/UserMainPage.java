@@ -59,6 +59,7 @@ public class UserMainPage extends AppCompatActivity {
     ActionBarDrawerToggle toggle;
     private Dialog signInDialog;
     private FirebaseUser currentUser;
+    private TextView badgeCount;
 
     NavigationView navigationView;
 
@@ -230,15 +231,22 @@ public class UserMainPage extends AppCompatActivity {
             getMenuInflater().inflate(R.menu.user_main_page, menu);
 
             MenuItem cartItem = menu.findItem(R.id.main_cart_icon);
-            if(DBqueries.cartList.size() > 0){
                 cartItem.setActionView(R.layout.badge_layout);
                 ImageView badgeIcon = cartItem.getActionView().findViewById(R.id.badge_icon);
                 badgeIcon.setImageResource(R.drawable.cart_black);
-                TextView badgeCount = cartItem.getActionView().findViewById(R.id.badge_count);
-                if(DBqueries.cartList.size() < 99) {
-                    badgeCount.setText(String.valueOf(DBqueries.cartList.size()));
-                } else {
-                    badgeCount.setText("99");
+                badgeCount = cartItem.getActionView().findViewById(R.id.badge_count);
+
+                if(currentUser != null){
+                    if (DBqueries.cartList.size() == 0) {
+                        DBqueries.loadCartList(UserMainPage.this, new Dialog(UserMainPage.this), false,badgeCount);
+                    } else {
+                            badgeCount.setVisibility(View.VISIBLE);
+                        if(DBqueries.cartList.size() < 99) {
+                            badgeCount.setText(String.valueOf(DBqueries.cartList.size()));
+                        } else {
+                            badgeCount.setText("99");
+                        }
+                    }
                 }
 
                 cartItem.getActionView().setOnClickListener(new View.OnClickListener() {
@@ -251,10 +259,7 @@ public class UserMainPage extends AppCompatActivity {
                         }
                     }
                 });
-            } else {
-                cartItem.setActionView(null);
             }
-        }
         return super.onCreateOptionsMenu(menu);
     }
 
