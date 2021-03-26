@@ -40,9 +40,6 @@ public class DeliveryActivity extends AppCompatActivity {
         deliveryRecyclerView.setLayoutManager(layoutManager);
 
         List<CartItemModel> cartItemModelList = new ArrayList<>();
-        cartItemModelList.add(new CartItemModel(0, R.drawable.product_image, "Anjali Singh", 2, "Rs.499/-", "Rs.699/-", 1, 0, 0));
-        cartItemModelList.add(new CartItemModel(0, R.drawable.product_image, "Anjali Singh", 0, "Rs.499/-", "Rs.699/-", 1, 1, 0));
-        cartItemModelList.add(new CartItemModel(0, R.drawable.product_image, "Anjali Singh", 2, "Rs.499/-", "Rs.699/-", 1, 2, 0));
         cartItemModelList.add(new CartItemModel(1, "Price(3 items)", "Rs.1497/-", "Free", "Rs.1497/-", "Rs.200/-"));
 
         CartAdapter cartAdapter = new CartAdapter(cartItemModelList);
