@@ -2,6 +2,7 @@ package com.example.ucdemo;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +31,7 @@ import java.util.Map;
 
 
 public class DBqueries {
+
 
     public static FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     public static List<CategoryModel> categoryModelList = new ArrayList<>();
@@ -44,6 +47,9 @@ public class DBqueries {
 
     public static List<String> cartList = new ArrayList<>();
     public static List<CartItemModel> cartItemModelList = new ArrayList<>();
+
+    public static int selectedaddress = -1;
+    public static List<AddressesModel> addressesModelList = new ArrayList<>();
 
     public static void loadCategories(RecyclerView categoryRecyclerView, Context context) {
         categoryModelList.clear();
@@ -374,6 +380,40 @@ public class DBqueries {
                         ProductDetailsActivity.running_cart_query = false;
                     }
                 });
+    }
+
+    public static void loadAddresses(final Context context, Dialog loadingDialog) {
+
+        addressesModelList.clear();
+        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_DATA").document("MY_ADDRESSES")
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Intent deliveryIntent;
+                    if ((long) task.getResult().get("list_size") == 0) {
+                        deliveryIntent = new Intent(context, AddAddressActivity.class);
+                    } else {
+                        for (long x = 1; x < (long) task.getResult().get("list_size")+1; x++) {
+                            addressesModelList.add(new AddressesModel(
+                                    task.getResult().get("fullname_"+x).toString()
+                                    ,task.getResult().get("pincode_"+x).toString()
+                                    ,task.getResult().get("address_"+x).toString()
+                                    ,(boolean)task.getResult().get("selected_"+x)));
+                            if((boolean) task.getResult().get("selected_" + x)){
+                                selectedaddress = Integer.parseInt(String.valueOf(x - 1));
+                            }
+                        }
+                        deliveryIntent = new Intent(context, DeliveryActivity.class);
+                    }
+                    context.startActivity(deliveryIntent);
+                } else {
+                    String error = task.getException().getMessage();
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+                }
+                loadingDialog.dismiss();
+            }
+        });
     }
 
     public static void clearData() {
