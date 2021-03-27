@@ -21,8 +21,10 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
@@ -60,6 +62,8 @@ public class UserMainPage extends AppCompatActivity {
     private Dialog signInDialog;
     private FirebaseUser currentUser;
     private TextView badgeCount;
+    private int scrollFlags;
+    private AppBarLayout.LayoutParams params;
 
     NavigationView navigationView;
 
@@ -76,6 +80,8 @@ public class UserMainPage extends AppCompatActivity {
         window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
+        params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+        scrollFlags = params.getScrollFlags();
 
         drawer = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -297,6 +303,12 @@ public class UserMainPage extends AppCompatActivity {
         getSupportActionBar().setTitle(title);
         invalidateOptionsMenu();
         setFragment(fragment, fragmentNo);
+        if(fragmentNo == CART_FRAGMENT){
+            navigationView.getMenu().getItem(3).setChecked(true);
+            params.setScrollFlags(0);
+        } else {
+            params.setScrollFlags(scrollFlags);
+        }
     }
 
     @Override

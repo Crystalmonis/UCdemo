@@ -24,6 +24,9 @@ public class DeliveryActivity extends AppCompatActivity {
     private Button changeOrAddnewAddressBtn;
     public static final int SELECT_ADDRESS = 0;
     private TextView totalAmount;
+    private TextView fullName;
+    private TextView fullAddress;
+    private TextView pincode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,13 +41,15 @@ public class DeliveryActivity extends AppCompatActivity {
         changeOrAddnewAddressBtn = findViewById(R.id.change_or_add_address_btn);
         deliveryRecyclerView = findViewById(R.id.delivery_recyclerview);
         totalAmount = findViewById(R.id.total_cart_amount);
+        fullName = findViewById(R.id.fullname);
+        fullAddress = findViewById(R.id.address);
+        pincode = findViewById(R.id.pincode_in_add_address);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         deliveryRecyclerView.setLayoutManager(layoutManager);
 
-        List<CartItemModel> cartItemModelList = new ArrayList<>();
 
-        CartAdapter cartAdapter = new CartAdapter(cartItemModelList,totalAmount);
+        CartAdapter cartAdapter = new CartAdapter(DBqueries.cartItemModelList, totalAmount, false);
         deliveryRecyclerView.setAdapter(cartAdapter);
         cartAdapter.notifyDataSetChanged();
 
@@ -53,11 +58,20 @@ public class DeliveryActivity extends AppCompatActivity {
         changeOrAddnewAddressBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myAddressesIntent = new Intent(DeliveryActivity.this,MyAddressesActivity.class);
-                myAddressesIntent.putExtra("MODE",SELECT_ADDRESS);
+                Intent myAddressesIntent = new Intent(DeliveryActivity.this, MyAddressesActivity.class);
+                myAddressesIntent.putExtra("MODE", SELECT_ADDRESS);
                 startActivity(myAddressesIntent);
             }
         });
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        fullName.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getFullName());
+        fullAddress.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAddress());
+        pincode.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getPincode());
     }
 
     @Override
