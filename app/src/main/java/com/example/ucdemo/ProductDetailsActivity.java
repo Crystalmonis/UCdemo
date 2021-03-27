@@ -227,7 +227,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             DBqueries.loadRatingList(ProductDetailsActivity.this);
                         }
                         if (DBqueries.cartList.size() == 0) {
-                            DBqueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false,badgeCount);
+                            DBqueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false,badgeCount, new TextView(ProductDetailsActivity.this));
                         }
                         if (DBqueries.wishList.size() == 0) {
                             DBqueries.loadWishlist(ProductDetailsActivity.this, loadingDialog, false);
@@ -282,7 +282,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                     if (task.isSuccessful()) {
 
                                                         if (DBqueries.cartItemModelList.size() != 0) {
-                                                            DBqueries.cartItemModelList.add(new CartItemModel(CartItemModel.CART_ITEM
+                                                            DBqueries.cartItemModelList.add(0,new CartItemModel(CartItemModel.CART_ITEM
                                                                     , productID
                                                                     , documentSnapshot.get("product_image_1").toString()
                                                                     , documentSnapshot.get("product_title").toString()
@@ -526,11 +526,34 @@ public class ProductDetailsActivity extends AppCompatActivity {
         buyNowBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                loadingDialog.show();
                 if (currentUser == null) {
                     signInDialog.show();
                 } else {
-                    Intent deliveryIntent = new Intent(ProductDetailsActivity.this, DeliveryActivity.class);
-                    startActivity(deliveryIntent);
+                    DeliveryActivity.cartItemModelList.clear();
+                    DeliveryActivity.cartItemModelList = new ArrayList<>();
+                    DeliveryActivity.cartItemModelList.add(new CartItemModel(CartItemModel.CART_ITEM
+                            , productID
+                            , documentSnapshot.get("product_image_1").toString()
+                            , documentSnapshot.get("product_title").toString()
+                            , (long) documentSnapshot.get("free_coupons")
+                            , documentSnapshot.get("product_price").toString()
+                            , documentSnapshot.get("cutted_price").toString()
+                            , (long) 1
+                            , (long) 0
+                            , (long) 0
+                            ,(boolean)documentSnapshot.get("in_stock")
+
+                    ));
+                    DeliveryActivity.cartItemModelList.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
+
+                    if (DBqueries.addressesModelList.size() == 0) {
+                        DBqueries.loadAddresses(ProductDetailsActivity.this, loadingDialog);
+                    } else {
+                        loadingDialog.dismiss();
+                        Intent deliveryIntent = new Intent(ProductDetailsActivity.this, DeliveryActivity.class);
+                        startActivity(deliveryIntent);
+                    }
                 }
             }
         });
@@ -713,7 +736,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             if(currentUser != null){
                 if (DBqueries.cartList.size() == 0) {
-                    DBqueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false,badgeCount);
+                    DBqueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false,badgeCount, new TextView(ProductDetailsActivity.this));
                 } else {
                     badgeCount.setVisibility(View.VISIBLE);
                     if(DBqueries.cartList.size() < 99) {

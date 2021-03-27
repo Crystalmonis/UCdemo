@@ -20,6 +20,7 @@ import java.util.List;
 
 public class DeliveryActivity extends AppCompatActivity {
 
+    public static List<CartItemModel> cartItemModelList;
     private RecyclerView deliveryRecyclerView;
     private Button changeOrAddnewAddressBtn;
     public static final int SELECT_ADDRESS = 0;
@@ -50,7 +51,7 @@ public class DeliveryActivity extends AppCompatActivity {
         deliveryRecyclerView.setLayoutManager(layoutManager);
 
 
-        CartAdapter cartAdapter = new CartAdapter(DBqueries.cartItemModelList, totalAmount, false);
+        CartAdapter cartAdapter = new CartAdapter(cartItemModelList, totalAmount, false);
         deliveryRecyclerView.setAdapter(cartAdapter);
         cartAdapter.notifyDataSetChanged();
 

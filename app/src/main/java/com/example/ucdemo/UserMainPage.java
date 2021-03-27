@@ -147,7 +147,7 @@ public class UserMainPage extends AppCompatActivity {
             MenuItem menuItem;
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                drawer.closeDrawers();
+                drawer.closeDrawer(GravityCompat.START);
                 menuItem = item;
                 if(currentUser != null) {
                 drawer.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
@@ -180,11 +180,9 @@ public class UserMainPage extends AppCompatActivity {
                         drawer.removeDrawerListener(this);
                     }
                 });
-                drawer.closeDrawer(GravityCompat.START);
                 return true;
                 }
                 else {
-                    drawer.closeDrawer(GravityCompat.START);
                     signInDialog.show();
                     return false;
                 }
@@ -244,7 +242,7 @@ public class UserMainPage extends AppCompatActivity {
 
                 if(currentUser != null){
                     if (DBqueries.cartList.size() == 0) {
-                        DBqueries.loadCartList(UserMainPage.this, new Dialog(UserMainPage.this), false,badgeCount);
+                        DBqueries.loadCartList(UserMainPage.this, new Dialog(UserMainPage.this), false,badgeCount,new TextView(UserMainPage.this));
                     } else {
                             badgeCount.setVisibility(View.VISIBLE);
                         if(DBqueries.cartList.size() < 99) {
@@ -303,7 +301,7 @@ public class UserMainPage extends AppCompatActivity {
         getSupportActionBar().setTitle(title);
         invalidateOptionsMenu();
         setFragment(fragment, fragmentNo);
-        if(fragmentNo == CART_FRAGMENT){
+        if(fragmentNo == CART_FRAGMENT || showCart){
             navigationView.getMenu().getItem(3).setChecked(true);
             params.setScrollFlags(0);
         } else {
