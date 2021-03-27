@@ -27,6 +27,7 @@ public class DeliveryActivity extends AppCompatActivity {
     private TextView fullName;
     private TextView fullAddress;
     private TextView pincode;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

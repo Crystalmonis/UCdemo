@@ -93,7 +93,7 @@ public class AddressesAdapter extends RecyclerView.Adapter<AddressesAdapter.View
                             addressesModelList.get(preSelectedPosition).setSelected(false);
                             refreshItem(preSelectedPosition, position);
                             preSelectedPosition = position;
-                            DBqueries.selectedaddress = position;
+                            DBqueries.selectedaddress=position;
                         }
                     }
                 });

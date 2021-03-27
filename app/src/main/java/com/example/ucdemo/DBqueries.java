@@ -48,7 +48,7 @@ public class DBqueries {
     public static List<String> cartList = new ArrayList<>();
     public static List<CartItemModel> cartItemModelList = new ArrayList<>();
 
-    public static int selectedaddress = -1;
+    public static int selectedaddress = 0;
     public static List<AddressesModel> addressesModelList = new ArrayList<>();
 
     public static void loadCategories(RecyclerView categoryRecyclerView, Context context) {
@@ -312,6 +312,7 @@ public class DBqueries {
                                                         , (long) 1
                                                         , (long) 0
                                                         , (long) 0
+                                                        , (boolean) task.getResult().get("in_stock")
                                                 ));
 
                                                 if (cartList.size() == 1) {
@@ -382,39 +383,39 @@ public class DBqueries {
                 });
     }
 
-    public static void loadAddresses(final Context context, Dialog loadingDialog) {
+    public static void loadAddresses(final Context context, final Dialog loadingDialog) {
 
         addressesModelList.clear();
-        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_DATA").document("MY_ADDRESSES")
-                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    Intent deliveryIntent;
-                    if ((long) task.getResult().get("list_size") == 0) {
-                        deliveryIntent = new Intent(context, AddAddressActivity.class);
-                        deliveryIntent.putExtra("INTENT","deliveryIntent");
-                    } else {
-                        for (long x = 1; x < (long) task.getResult().get("list_size")+1; x++) {
-                            addressesModelList.add(new AddressesModel(
-                                    task.getResult().get("fullname_"+x).toString()
-                                    ,task.getResult().get("pincode_"+x).toString()
-                                    ,task.getResult().get("address_"+x).toString()
-                                    ,(boolean)task.getResult().get("selected_"+x)));
-                            if((boolean) task.getResult().get("selected_" + x)){
-                                selectedaddress = Integer.parseInt(String.valueOf(x - 1));
+        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_DATA").document("MY_ADDRESSES").get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Intent deliveryIntent;
+                            if ((long)task.getResult().get("list_size") == 0) {
+                                deliveryIntent = new Intent(context, AddAddressActivity.class);
+                                deliveryIntent.putExtra("INTENT", "deliveryIntent");
+                            } else {
+                                for (long x=1;x<=(long)task.getResult().get("list_size");x++) {
+                                    addressesModelList.add(new AddressesModel(
+                                            task.getResult().get("fullname_" + x).toString()
+                                            , task.getResult().get("pincode_" + x).toString()
+                                            , task.getResult().get("address_" + x).toString()
+                                            , (boolean) task.getResult().get("selected_" + x)));
+                                    if((boolean)task.getResult().get("selected_"+x)){
+                                        selectedaddress=Integer.parseInt(String.valueOf(x - 1));
+                                    }
+                                }
+                                deliveryIntent = new Intent(context, DeliveryActivity.class);
                             }
+                            context.startActivity(deliveryIntent);
+                        } else {
+                            String error = task.getException().getMessage();
+                            Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                         }
-                        deliveryIntent = new Intent(context, DeliveryActivity.class);
+                        loadingDialog.dismiss();
                     }
-                    context.startActivity(deliveryIntent);
-                } else {
-                    String error = task.getException().getMessage();
-                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
-                }
-                loadingDialog.dismiss();
-            }
-        });
+                });
     }
 
     public static void clearData() {
@@ -425,6 +426,7 @@ public class DBqueries {
         wishlistModelList.clear();
         cartList.clear();
         cartItemModelList.clear();
+        addressesModelList.clear();
     }
 
 }

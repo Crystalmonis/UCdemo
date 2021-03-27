@@ -14,14 +14,6 @@ public class AddressesModel {
         this.selected = selected;
     }
 
-    public Boolean getSelected() {
-        return selected;
-    }
-
-    public void setSelected(Boolean selected) {
-        this.selected = selected;
-    }
-
     public String getFullName() {
         return fullName;
     }
@@ -44,6 +36,14 @@ public class AddressesModel {
 
     public void setPincode(String pincode) {
         this.pincode = pincode;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }
 
