@@ -27,12 +27,13 @@ public class CartItemModel {
     private String cuttedPrice;
     private long productQuantity;
     private long maxQuantity;
+    private long stockQuantity;
     private long offersApplied;
     private long couponsApplied;
     private boolean inStock;
     private List<String> qtyIDs;
 
-    public CartItemModel(int type,String productID, String productImage, String productTitle, Long freeCoupons, String productPrice, String cuttedPrice, Long productQuantity, Long offersApplied, Long couponsApplied, boolean inStock, long maxQuantity) {
+    public CartItemModel(int type,String productID, String productImage, String productTitle, Long freeCoupons, String productPrice, String cuttedPrice, Long productQuantity, Long offersApplied, Long couponsApplied, boolean inStock, long maxQuantity, long stockQuantity) {
         this.type = type;
         this.productID = productID;
         this.productImage = productImage;
@@ -45,7 +46,16 @@ public class CartItemModel {
         this.couponsApplied = couponsApplied;
         this.inStock = inStock;
         this.maxQuantity = maxQuantity;
+        this.stockQuantity = stockQuantity;
         qtyIDs = new ArrayList<>();
+    }
+
+    public long getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(long stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 
     public List<String> getQtyIDs() {

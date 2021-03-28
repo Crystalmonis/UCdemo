@@ -315,6 +315,7 @@ public class DBqueries {
                                                         , (long) 0
                                                         , (boolean) task.getResult().get("in_stock")
                                                         ,(long) task.getResult().get("max-quantity")
+                                                        ,(long) task.getResult().get("stock_quantity")
                                                 ));
 
                                                 if (cartList.size() == 1) {
