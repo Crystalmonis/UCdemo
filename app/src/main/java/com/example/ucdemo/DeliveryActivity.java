@@ -57,18 +57,20 @@ public class DeliveryActivity extends AppCompatActivity {
     public static final int SELECT_ADDRESS = 0;
     private TextView totalAmount;
     private TextView fullName;
-    private String name,mobileNo;
+    private String name, mobileNo;
     private TextView fullAddress;
     private TextView pincode;
     private Button continuebtn;
     private Dialog loadingDialog;
     private Dialog paymentMethodDialog;
-    private ImageButton paytm,cod;
+    private ImageButton paytm, cod;
     private ConstraintLayout orderConfirmationLayout;
     private ImageButton continueShoppingBtn;
     private TextView orderId;
     private boolean successResponse = false;
     public static boolean fromCart;
+    private String order_id;
+    public static boolean codOrderConfirmed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +111,8 @@ public class DeliveryActivity extends AppCompatActivity {
         cod = paymentMethodDialog.findViewById(R.id.cod_btn);
         //////////////Payment Method dialog
 
+        order_id = UUID.randomUUID().toString().substring(0, 28);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         deliveryRecyclerView.setLayoutManager(layoutManager);
@@ -139,8 +143,9 @@ public class DeliveryActivity extends AppCompatActivity {
         cod.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent otpIntent = new Intent(DeliveryActivity.this,OTPverificationActivity.class);
-                otpIntent.putExtra("mobileNo",mobileNo.substring(0,10));
+                paymentMethodDialog.dismiss();
+                Intent otpIntent = new Intent(DeliveryActivity.this, OTPverificationActivity.class);
+                otpIntent.putExtra("mobileNo", mobileNo.substring(0, 10));
                 startActivity(otpIntent);
             }
         });
@@ -157,7 +162,6 @@ public class DeliveryActivity extends AppCompatActivity {
 
                 final String M_id = "vlNKMm27811914887649";
                 final String customer_id = FirebaseAuth.getInstance().getUid();
-                final String order_id = UUID.randomUUID().toString().substring(0, 28);
                 final String url = "https://wayworn-cause.000webhostapp.com/paytm/generateChecksum.php";
                 final String callBackUrl = "https://pguat.paytm.com/paytmchecksum/paytmCallback.jsp";
 
@@ -167,8 +171,8 @@ public class DeliveryActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            Toast.makeText(getApplicationContext(),"Reached",Toast.LENGTH_LONG).show();
-                            if(jsonObject.has("CHECKSUMHASH")){
+                            Toast.makeText(getApplicationContext(), "Reached", Toast.LENGTH_LONG).show();
+                            if (jsonObject.has("CHECKSUMHASH")) {
                                 String CHECKSUMHASH = jsonObject.getString("CHECKSUMHASH");
 
                                 PaytmPGService paytmPGService = PaytmPGService.getStagingService();
@@ -192,101 +196,39 @@ public class DeliveryActivity extends AppCompatActivity {
                                     public void onTransactionResponse(Bundle inResponse) {
                                         //Toast.makeText(getApplicationContext(),"Payment Transaction response "+ inResponse.toString(), Toast.LENGTH_LONG).show();
 
-                                        if(inResponse.getString("STATUS").equals("TXN_SUCCESS")){
-
-                                            successResponse = true;
-
-
-
-                                            if(UserMainPage.mainActivity != null){
-                                                UserMainPage.mainActivity.finish();
-                                                UserMainPage.mainActivity = null;
-                                                UserMainPage.showCart = false;
-                                            }
-
-                                            if(ProductDetailsActivity.productDetailsActivity != null){
-                                                ProductDetailsActivity.productDetailsActivity.finish();
-                                                ProductDetailsActivity.productDetailsActivity = null;
-                                            }
-
-                                            if(fromCart){
-                                                loadingDialog.show();
-                                                Map<String, Object> updateCartlist = new HashMap<>();
-                                                long cartListSize = 0;
-                                                List<Integer> indexList = new ArrayList<>();
-
-                                                for (int x = 0; x < DBqueries.cartItemModelList.size(); x++) {
-                                                    if(!cartItemModelList.get(x).isInStock()){
-                                                        updateCartlist.put("product_ID_" + x, cartItemModelList.get(x).getProductID());
-                                                        cartListSize++;
-                                                    } else {
-                                                        indexList.add(x);
-                                                    }
-                                                }
-                                                updateCartlist.put("list_size", cartListSize);
-
-                                                FirebaseFirestore.getInstance().collection("USERS").document(FirebaseAuth.getInstance().getUid())
-                                                        .collection("USER_DATA").document("MY_CART").set(updateCartlist)
-                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                if(task.isSuccessful()){
-                                                                    for(int x = 0; x < indexList.size(); x++){
-                                                                        DBqueries.cartList.remove(indexList.get(x).intValue());
-                                                                        DBqueries.cartItemModelList.remove(indexList.get(x).intValue());
-                                                                        DBqueries.cartItemModelList.remove(cartItemModelList.size()-1);
-                                                                    }
-                                                                } else {
-                                                                    String error = task.getException().getMessage();
-                                                                    Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
-                                                                }
-                                                                loadingDialog.dismiss();
-                                                            }
-                                                        });
-                                            }
-
-                                            continuebtn.setEnabled(false);
-                                            changeOrAddnewAddressBtn.setEnabled(false);
-                                            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                                            orderId.setText("Order ID " +inResponse.getString("ORDERID"));
-                                            orderConfirmationLayout.setVisibility(View.VISIBLE);
-                                            continueShoppingBtn.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-
-                                                }
-                                            });
+                                        if (inResponse.getString("STATUS").equals("TXN_SUCCESS")) {
+                                            showConfirmationLayout();
                                         }
                                     }
 
                                     @Override
                                     public void networkNotAvailable() {
-                                        Toast.makeText(getApplicationContext(),"Network Connection error: Check your internet connectivity",Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "Network Connection error: Check your internet connectivity", Toast.LENGTH_LONG).show();
                                     }
 
                                     @Override
                                     public void clientAuthenticationFailed(String inErrorMessage) {
-                                        Toast.makeText(getApplicationContext(),"Authentication failed: Server error" + inErrorMessage.toString(),Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "Authentication failed: Server error" + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
                                     }
 
                                     @Override
                                     public void someUIErrorOccurred(String inErrorMessage) {
-                                        Toast.makeText(getApplicationContext(),"UI Error " +inErrorMessage, Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "UI Error " + inErrorMessage, Toast.LENGTH_LONG).show();
                                     }
 
                                     @Override
                                     public void onErrorLoadingWebPage(int iniErrorCode, String inErrorMessage, String inFailingUrl) {
-                                        Toast.makeText(getApplicationContext(),"Unable to load webpage " + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "Unable to load webpage " + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
                                     }
 
                                     @Override
                                     public void onBackPressedCancelTransaction() {
-                                        Toast.makeText(getApplicationContext(),"Transaction cancelled" , Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "Transaction cancelled", Toast.LENGTH_LONG).show();
                                     }
 
                                     @Override
                                     public void onTransactionCancel(String inErrorMessage, Bundle inResponse) {
-                                        Toast.makeText(getApplicationContext(),  "Transaction cancelled" + inResponse.toString() , Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "Transaction cancelled" + inResponse.toString(), Toast.LENGTH_LONG).show();
                                     }
                                 });
                             }
@@ -294,13 +236,13 @@ public class DeliveryActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                },new Response.ErrorListener(){
+                }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         loadingDialog.dismiss();
-                        Toast.makeText(DeliveryActivity.this,"Something went wrong!",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DeliveryActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
                     }
-                }){
+                }) {
                     @Override
                     protected Map<String, String> getParams() throws AuthFailureError {
                         Map<String, String> paramMap = new HashMap<String, String>();
@@ -330,6 +272,10 @@ public class DeliveryActivity extends AppCompatActivity {
         fullName.setText(name + " - " + mobileNo);
         fullAddress.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAddress());
         pincode.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getPincode());
+
+        if(codOrderConfirmed){
+            showConfirmationLayout();
+        }
     }
 
     @Override
@@ -350,10 +296,74 @@ public class DeliveryActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(successResponse){
+        if (successResponse) {
             finish();
             return;
         }
         super.onBackPressed();
+    }
+
+    private void showConfirmationLayout() {
+        successResponse = true;
+        codOrderConfirmed = false;
+
+        if (UserMainPage.mainActivity != null) {
+            UserMainPage.mainActivity.finish();
+            UserMainPage.mainActivity = null;
+            UserMainPage.showCart = false;
+        }
+
+        if (ProductDetailsActivity.productDetailsActivity != null) {
+            ProductDetailsActivity.productDetailsActivity.finish();
+            ProductDetailsActivity.productDetailsActivity = null;
+        }
+
+        if (fromCart) {
+            loadingDialog.show();
+            Map<String, Object> updateCartlist = new HashMap<>();
+            long cartListSize = 0;
+            List<Integer> indexList = new ArrayList<>();
+
+            for (int x = 0; x < DBqueries.cartItemModelList.size(); x++) {
+                if (!cartItemModelList.get(x).isInStock()) {
+                    updateCartlist.put("product_ID_" + x, cartItemModelList.get(x).getProductID());
+                    cartListSize++;
+                } else {
+                    indexList.add(x);
+                }
+            }
+            updateCartlist.put("list_size", cartListSize);
+
+            FirebaseFirestore.getInstance().collection("USERS").document(FirebaseAuth.getInstance().getUid())
+                    .collection("USER_DATA").document("MY_CART").set(updateCartlist)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                for (int x = 0; x < indexList.size(); x++) {
+                                    DBqueries.cartList.remove(indexList.get(x).intValue());
+                                    DBqueries.cartItemModelList.remove(indexList.get(x).intValue());
+                                    DBqueries.cartItemModelList.remove(DBqueries.cartItemModelList.size() - 1);
+                                }
+                            } else {
+                                String error = task.getException().getMessage();
+                                Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
+                            }
+                            loadingDialog.dismiss();
+                        }
+                    });
+        }
+
+        continuebtn.setEnabled(false);
+        changeOrAddnewAddressBtn.setEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        orderId.setText("Order ID " + order_id);
+        orderConfirmationLayout.setVisibility(View.VISIBLE);
+        continueShoppingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 }
