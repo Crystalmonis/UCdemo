@@ -57,13 +57,13 @@ public class DeliveryActivity extends AppCompatActivity {
     public static final int SELECT_ADDRESS = 0;
     private TextView totalAmount;
     private TextView fullName;
+    private String name,mobileNo;
     private TextView fullAddress;
     private TextView pincode;
     private Button continuebtn;
-    private String name;
     private Dialog loadingDialog;
     private Dialog paymentMethodDialog;
-    private ImageButton paytm;
+    private ImageButton paytm,cod;
     private ConstraintLayout orderConfirmationLayout;
     private ImageButton continueShoppingBtn;
     private TextView orderId;
@@ -106,6 +106,7 @@ public class DeliveryActivity extends AppCompatActivity {
         paymentMethodDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         paymentMethodDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.slider_background));
         paytm = paymentMethodDialog.findViewById(R.id.paytm);
+        cod = paymentMethodDialog.findViewById(R.id.cod_btn);
         //////////////Payment Method dialog
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -134,6 +135,16 @@ public class DeliveryActivity extends AppCompatActivity {
                 paymentMethodDialog.show();
             }
         });
+
+        cod.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent otpIntent = new Intent(DeliveryActivity.this,OTPverificationActivity.class);
+                otpIntent.putExtra("mobileNo",mobileNo.substring(0,10));
+                startActivity(otpIntent);
+            }
+        });
+
 
         paytm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,6 +196,8 @@ public class DeliveryActivity extends AppCompatActivity {
 
                                             successResponse = true;
 
+
+
                                             if(UserMainPage.mainActivity != null){
                                                 UserMainPage.mainActivity.finish();
                                                 UserMainPage.mainActivity = null;
@@ -232,6 +245,9 @@ public class DeliveryActivity extends AppCompatActivity {
                                                         });
                                             }
 
+                                            continuebtn.setEnabled(false);
+                                            changeOrAddnewAddressBtn.setEnabled(false);
+                                            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                                             orderId.setText("Order ID " +inResponse.getString("ORDERID"));
                                             orderConfirmationLayout.setVisibility(View.VISIBLE);
                                             continueShoppingBtn.setOnClickListener(new View.OnClickListener() {
@@ -309,7 +325,9 @@ public class DeliveryActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        fullName.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getFullName());
+        name = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getFullName();
+        mobileNo = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getMobileNo();
+        fullName.setText(name + " - " + mobileNo);
         fullAddress.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAddress());
         pincode.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getPincode());
     }
