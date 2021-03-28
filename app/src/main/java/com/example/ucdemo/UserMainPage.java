@@ -58,6 +58,7 @@ public class UserMainPage extends AppCompatActivity {
     private Toolbar toolbar;
     public static DrawerLayout drawer;
     public static boolean showCart = false;
+    public static Activity mainActivity;
     ActionBarDrawerToggle toggle;
     private Dialog signInDialog;
     private FirebaseUser currentUser;
@@ -102,6 +103,7 @@ public class UserMainPage extends AppCompatActivity {
         frameLayout = findViewById(R.id.main_framelayout);
 
         if (showCart) {
+            mainActivity = this;
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             gotoFragment("My Cart", new MyCartFragment(), -2);
@@ -214,6 +216,7 @@ public class UserMainPage extends AppCompatActivity {
                 super.onBackPressed();
             } else {
                 if (showCart) {
+                    mainActivity = null;
                     showCart = false;
                     finish();
 
@@ -286,6 +289,7 @@ public class UserMainPage extends AppCompatActivity {
             return true;
         } else if (id == android.R.id.home) {
             if (showCart) {
+                mainActivity = null;
                 showCart = false;
                 finish();
                 return true;
