@@ -26,6 +26,12 @@
         <item name="colorAccent">@android:color/holo_red_light</item>
     </style>
 
+    <style name="paytmTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/user_theme</item>
+        <item name="colorPrimaryDark">@color/RecyclerViewBackground</item>
+        <item name="colorAccent">@android:color/holo_blue_dark</item>
+    </style>
+
     <style name="UserThemeProgressBar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">@color/user_theme</item>
         <item name="colorPrimaryDark">@color/user_theme</item>
