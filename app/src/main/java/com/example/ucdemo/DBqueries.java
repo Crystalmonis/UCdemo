@@ -110,7 +110,7 @@ public class DBqueries {
                                             , queryDocumentSnapshot.get("product_price_" + x).toString()
                                             , queryDocumentSnapshot.get("cutted_price_" + x).toString()
                                             , (boolean) queryDocumentSnapshot.get("COD_" + x)
-
+                                            ,(boolean) queryDocumentSnapshot.get("in_stock_" +x)
                                     ));
                                 }
                                 lists.get(index).add(new HomePageModel(2, queryDocumentSnapshot.get("layout_title").toString(), queryDocumentSnapshot.get("layout_background").toString(), horizontalProductScrollModelList, viewAllProductList));
@@ -184,7 +184,7 @@ public class DBqueries {
                                                         , task.getResult().get("product_price").toString()
                                                         , task.getResult().get("cutted_price").toString()
                                                         , (boolean) task.getResult().get("COD")
-
+                                                        ,(boolean) task.getResult().get("in_stock")
                                                 ));
                                                 MyWishlistFragment.wishlistAdapter.notifyDataSetChanged();
                                             } else {
@@ -432,6 +432,8 @@ public class DBqueries {
         cartList.clear();
         cartItemModelList.clear();
         addressesModelList.clear();
+        myRatedIds.clear();
+        myRating.clear();
     }
 
 }

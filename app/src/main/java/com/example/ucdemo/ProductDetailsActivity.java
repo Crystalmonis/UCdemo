@@ -369,6 +369,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                     , documentSnapshot.get("product_price").toString()
                                                     , documentSnapshot.get("cutted_price").toString()
                                                     , (boolean) documentSnapshot.get("COD")
+                                                    ,(boolean) documentSnapshot.get("in_stock")
 
                                             ));
                                         }
@@ -531,6 +532,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 if (currentUser == null) {
                     signInDialog.show();
                 } else {
+                    DeliveryActivity.fromCart = false;
                     loadingDialog.show();
                     productDetailsActivity = ProductDetailsActivity.this;
                     DeliveryActivity.cartItemModelList = new ArrayList<>();

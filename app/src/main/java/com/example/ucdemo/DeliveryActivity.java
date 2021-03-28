@@ -31,7 +31,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.paytm.pgsdk.PaytmOrder;
 import com.paytm.pgsdk.PaytmPGService;
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback;
@@ -64,6 +67,8 @@ public class DeliveryActivity extends AppCompatActivity {
     private ConstraintLayout orderConfirmationLayout;
     private ImageButton continueShoppingBtn;
     private TextView orderId;
+    private boolean successResponse = false;
+    public static boolean fromCart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,6 +183,8 @@ public class DeliveryActivity extends AppCompatActivity {
 
                                         if(inResponse.getString("STATUS").equals("TXN_SUCCESS")){
 
+                                            successResponse = true;
+
                                             if(UserMainPage.mainActivity != null){
                                                 UserMainPage.mainActivity.finish();
                                                 UserMainPage.mainActivity = null;
@@ -187,6 +194,42 @@ public class DeliveryActivity extends AppCompatActivity {
                                             if(ProductDetailsActivity.productDetailsActivity != null){
                                                 ProductDetailsActivity.productDetailsActivity.finish();
                                                 ProductDetailsActivity.productDetailsActivity = null;
+                                            }
+
+                                            if(fromCart){
+                                                loadingDialog.show();
+                                                Map<String, Object> updateCartlist = new HashMap<>();
+                                                long cartListSize = 0;
+                                                List<Integer> indexList = new ArrayList<>();
+
+                                                for (int x = 0; x < DBqueries.cartItemModelList.size(); x++) {
+                                                    if(!cartItemModelList.get(x).isInStock()){
+                                                        updateCartlist.put("product_ID_" + x, cartItemModelList.get(x).getProductID());
+                                                        cartListSize++;
+                                                    } else {
+                                                        indexList.add(x);
+                                                    }
+                                                }
+                                                updateCartlist.put("list_size", cartListSize);
+
+                                                FirebaseFirestore.getInstance().collection("USERS").document(FirebaseAuth.getInstance().getUid())
+                                                        .collection("USER_DATA").document("MY_CART").set(updateCartlist)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if(task.isSuccessful()){
+                                                                    for(int x = 0; x < indexList.size(); x++){
+                                                                        DBqueries.cartList.remove(indexList.get(x).intValue());
+                                                                        DBqueries.cartItemModelList.remove(indexList.get(x).intValue());
+                                                                        DBqueries.cartItemModelList.remove(cartItemModelList.size()-1);
+                                                                    }
+                                                                } else {
+                                                                    String error = task.getException().getMessage();
+                                                                    Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
+                                                                }
+                                                                loadingDialog.dismiss();
+                                                            }
+                                                        });
                                             }
 
                                             orderId.setText("Order ID " +inResponse.getString("ORDERID"));
@@ -285,5 +328,14 @@ public class DeliveryActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         loadingDialog.dismiss();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(successResponse){
+            finish();
+            return;
+        }
+        super.onBackPressed();
     }
 }
