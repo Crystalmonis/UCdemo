@@ -58,6 +58,7 @@ public class UserMainPage extends AppCompatActivity {
     private Toolbar toolbar;
     public static DrawerLayout drawer;
     public static boolean showCart = false;
+    public static boolean resetMainActivity = false;
     public static Activity mainActivity;
     ActionBarDrawerToggle toggle;
     private Dialog signInDialog;
@@ -201,6 +202,12 @@ public class UserMainPage extends AppCompatActivity {
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
         } else {
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(true);
+        }
+        if(resetMainActivity){
+            resetMainActivity = false;
+            actionbarLogo.setVisibility(View.VISIBLE);
+            setFragment(new HomeFragment(),HomeFragment);
+            navigationView.getMenu().getItem(0).setChecked(true);
         }
         invalidateOptionsMenu();
     }

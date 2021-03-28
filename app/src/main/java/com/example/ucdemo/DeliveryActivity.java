@@ -36,6 +36,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.paytm.pgsdk.PaytmOrder;
 import com.paytm.pgsdk.PaytmPGService;
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback;
@@ -73,6 +76,9 @@ public class DeliveryActivity extends AppCompatActivity {
     public static boolean fromCart;
     private String order_id;
     public static boolean codOrderConfirmed = false;
+    private FirebaseFirestore firebaseFirestore;
+    private boolean allProductsAvailable = true;
+    public static boolean getQtyIDs = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +118,8 @@ public class DeliveryActivity extends AppCompatActivity {
         paytm = paymentMethodDialog.findViewById(R.id.paytm);
         cod = paymentMethodDialog.findViewById(R.id.cod_btn);
         //////////////Payment Method dialog
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        getQtyIDs = true;
 
         order_id = UUID.randomUUID().toString().substring(0, 28);
 
@@ -129,6 +137,8 @@ public class DeliveryActivity extends AppCompatActivity {
         changeOrAddnewAddressBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                getQtyIDs = false;
                 Intent myAddressesIntent = new Intent(DeliveryActivity.this, MyAddressesActivity.class);
                 myAddressesIntent.putExtra("MODE", SELECT_ADDRESS);
                 startActivity(myAddressesIntent);
@@ -138,13 +148,18 @@ public class DeliveryActivity extends AppCompatActivity {
         continuebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                paymentMethodDialog.show();
+                if (allProductsAvailable) {
+                    paymentMethodDialog.show();
+                } else {
+                    //////////nothing
+                }
             }
         });
 
         cod.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getQtyIDs = false;
                 paymentMethodDialog.dismiss();
                 Intent otpIntent = new Intent(DeliveryActivity.this, OTPverificationActivity.class);
                 otpIntent.putExtra("mobileNo", mobileNo.substring(0, 10));
@@ -156,6 +171,7 @@ public class DeliveryActivity extends AppCompatActivity {
         paytm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getQtyIDs = false;
                 paymentMethodDialog.dismiss();
                 loadingDialog.show();
                 if (ContextCompat.checkSelfPermission(DeliveryActivity.this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -269,13 +285,65 @@ public class DeliveryActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        //////////////////////////Accessing quantity
+        if (getQtyIDs) {
+            for (int x = 0; x < cartItemModelList.size() - 1; x++) {
+
+                int finalX = x;
+                firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(x).getProductID()).collection("QUANTITY").orderBy("available", Query.Direction.DESCENDING).limit(cartItemModelList.get(x).getProductQuantity())
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            for (final QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
+
+                                if ((boolean) queryDocumentSnapshot.get("available")) {
+
+                                    firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(finalX).getProductID()).collection("QUANTITY").document(queryDocumentSnapshot.getId()).update("available", false)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        cartItemModelList.get(finalX).getQtyIDs().add(queryDocumentSnapshot.getId());
+                                                    } else {
+                                                        String error = task.getException().getMessage();
+                                                        Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+
+                                } else {
+                                    ///////////not available
+                                    allProductsAvailable = false;
+                                    Toast.makeText(DeliveryActivity.this, "All dishes may not be available at required quantity", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
+
+                            }
+
+                        } else {
+                            String error = task.getException().getMessage();
+                            Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+
+            }
+        } else {
+            getQtyIDs = true;
+        }
+        //////////////////////////Accessing quantity
+
         name = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getFullName();
         mobileNo = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getMobileNo();
         fullName.setText(name + " - " + mobileNo);
         fullAddress.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAddress());
         pincode.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getPincode());
 
-        if(codOrderConfirmed){
+        if (codOrderConfirmed) {
             showConfirmationLayout();
         }
     }
@@ -294,6 +362,23 @@ public class DeliveryActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         loadingDialog.dismiss();
+
+        if (getQtyIDs) {
+            for (int x = 0; x < cartItemModelList.size() - 1; x++) {
+
+                if (!successResponse) {
+                    for (String qtyId : cartItemModelList.get(x).getQtyIDs()) {
+
+                        firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(x).getProductID()).collection("QUANTITY").document(qtyId).update("available", true);
+
+                    }
+                }
+                cartItemModelList.get(x).getQtyIDs().clear();
+
+
+            }
+        }
+
     }
 
     @Override
@@ -308,7 +393,31 @@ public class DeliveryActivity extends AppCompatActivity {
     private void showConfirmationLayout() {
         successResponse = true;
         codOrderConfirmed = false;
+        getQtyIDs = false;
+        for (int x = 0; x < cartItemModelList.size() - 1; x++) {
 
+            for (String qtyId : cartItemModelList.get(x).getQtyIDs()) {
+
+                firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(x).getProductID()).collection("QUANTITY").document(qtyId).update("user_ID", FirebaseAuth.getInstance().getUid());
+
+            }
+
+        }
+
+        if (UserMainPage.mainActivity != null) {
+            UserMainPage.mainActivity.finish();
+            UserMainPage.mainActivity = null;
+            UserMainPage.showCart = false;
+        } else {
+            UserMainPage.resetMainActivity = true;
+        }
+
+        if (ProductDetailsActivity.productDetailsActivity != null) {
+            ProductDetailsActivity.productDetailsActivity.finish();
+            ProductDetailsActivity.productDetailsActivity = null;
+        }
+
+        ///////////send confirmation SMS
         String SMS_API = "https://www.fast2sms.com/dev/bulkV2";
         String message = "Thank you for availing our services! Your booking is confirmed and the chef will arrive at the given place shortly. Your booking ID  is " + order_id + "";
 
@@ -322,45 +431,35 @@ public class DeliveryActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
 
             }
-        }){
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("authorization","YDIOPmgdFRaECih4BM0WAGNnXwoQ7JSvplKyLe5uqtxcfTZ932JGD1fyKrF6sEqpUeHSXwYchx2vjRLZ");
+                headers.put("authorization", "YDIOPmgdFRaECih4BM0WAGNnXwoQ7JSvplKyLe5uqtxcfTZ932JGD1fyKrF6sEqpUeHSXwYchx2vjRLZ");
                 return headers;
             }
 
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> body = new HashMap<>();
-                body.put("sender_id","TXTIND");
-                body.put("message",message);
-                body.put("language","english");
-                body.put("route","v3");
-                body.put("numbers",mobileNo);
-                body.put("sender_id","TXTIND");
+                body.put("sender_id", "TXTIND");
+                body.put("message", message);
+                body.put("language", "english");
+                body.put("route", "v3");
+                body.put("numbers", mobileNo);
+                body.put("sender_id", "TXTIND");
 
 
                 return body;
             }
         };
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
         RequestQueue requestQueue = Volley.newRequestQueue(DeliveryActivity.this);
         requestQueue.add(stringRequest);
 
-
-        if (UserMainPage.mainActivity != null) {
-            UserMainPage.mainActivity.finish();
-            UserMainPage.mainActivity = null;
-            UserMainPage.showCart = false;
-        }
-
-        if (ProductDetailsActivity.productDetailsActivity != null) {
-            ProductDetailsActivity.productDetailsActivity.finish();
-            ProductDetailsActivity.productDetailsActivity = null;
-        }
+        ////////////////////send confirmation sms
 
         if (fromCart) {
             loadingDialog.show();

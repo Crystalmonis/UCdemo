@@ -204,11 +204,15 @@ public class CartAdapter extends RecyclerView.Adapter {
                             public void onClick(View v) {
                                 if (!TextUtils.isEmpty(quantityNo.getText())) {
                                     if (Long.valueOf(quantityNo.getText().toString()) <= maxQuantity && Long.valueOf(quantityNo.getText().toString()) != 0) {
+                                        if (itemView.getContext() instanceof UserMainPage) {
+                                            DBqueries.cartItemModelList.get(position).setProductQuantity(Long.valueOf(quantityNo.getText().toString()));
+                                        } else {
                                             if (DeliveryActivity.fromCart) {
                                                 DBqueries.cartItemModelList.get(position).setProductQuantity(Long.valueOf(quantityNo.getText().toString()));
                                             } else {
                                                 DeliveryActivity.cartItemModelList.get(position).setProductQuantity(Long.valueOf(quantityNo.getText().toString()));
                                             }
+                                        }
                                         productQuantity.setText("Qty: " + quantityNo.getText().toString());
                                     } else {
                                         Toast.makeText(itemView.getContext(), "Max quantity : " + maxQuantity.toString(), Toast.LENGTH_SHORT).show();
