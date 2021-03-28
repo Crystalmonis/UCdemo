@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -46,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 
@@ -307,6 +309,48 @@ public class DeliveryActivity extends AppCompatActivity {
         successResponse = true;
         codOrderConfirmed = false;
 
+        String SMS_API = "https://www.fast2sms.com/dev/bulkV2";
+        String message = "Thank you for availing our services! Your booking is confirmed and the chef will arrive at the given place shortly. Your booking ID  is " + order_id + "";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, SMS_API, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                ///////////////////nothing
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("authorization","YDIOPmgdFRaECih4BM0WAGNnXwoQ7JSvplKyLe5uqtxcfTZ932JGD1fyKrF6sEqpUeHSXwYchx2vjRLZ");
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> body = new HashMap<>();
+                body.put("sender_id","TXTIND");
+                body.put("message",message);
+                body.put("language","english");
+                body.put("route","v3");
+                body.put("numbers",mobileNo);
+                body.put("sender_id","TXTIND");
+
+
+                return body;
+            }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+        RequestQueue requestQueue = Volley.newRequestQueue(DeliveryActivity.this);
+        requestQueue.add(stringRequest);
+
+
         if (UserMainPage.mainActivity != null) {
             UserMainPage.mainActivity.finish();
             UserMainPage.mainActivity = null;
@@ -326,7 +370,7 @@ public class DeliveryActivity extends AppCompatActivity {
 
             for (int x = 0; x < DBqueries.cartItemModelList.size(); x++) {
                 if (!cartItemModelList.get(x).isInStock()) {
-                    updateCartlist.put("product_ID_" + x, cartItemModelList.get(x).getProductID());
+                    updateCartlist.put("product_ID_" + cartListSize, cartItemModelList.get(x).getProductID());
                     cartListSize++;
                 } else {
                     indexList.add(x);
