@@ -60,6 +60,7 @@ public class DeliveryActivity extends AppCompatActivity {
 
     public static List<CartItemModel> cartItemModelList;
     private RecyclerView deliveryRecyclerView;
+    public static CartAdapter cartAdapter;
     private Button changeOrAddnewAddressBtn;
     public static final int SELECT_ADDRESS = 0;
     private TextView totalAmount;
@@ -79,7 +80,7 @@ public class DeliveryActivity extends AppCompatActivity {
     private String order_id;
     public static boolean codOrderConfirmed = false;
     private FirebaseFirestore firebaseFirestore;
-    private boolean allProductsAvailable = true;
+    public static boolean allProductsAvailable;
     public static boolean getQtyIDs = true;
 
     @Override
@@ -122,6 +123,7 @@ public class DeliveryActivity extends AppCompatActivity {
         //////////////Payment Method dialog
         firebaseFirestore = FirebaseFirestore.getInstance();
         getQtyIDs = true;
+        allProductsAvailable = true;
 
         order_id = UUID.randomUUID().toString().substring(0, 28);
 
@@ -130,7 +132,7 @@ public class DeliveryActivity extends AppCompatActivity {
         deliveryRecyclerView.setLayoutManager(layoutManager);
 
 
-        CartAdapter cartAdapter = new CartAdapter(cartItemModelList, totalAmount, false);
+        cartAdapter = new CartAdapter(cartItemModelList, totalAmount, false);
         deliveryRecyclerView.setAdapter(cartAdapter);
         cartAdapter.notifyDataSetChanged();
 
@@ -317,16 +319,25 @@ public class DeliveryActivity extends AppCompatActivity {
                                                                 serverQuantity.add(queryDocumentSnapshot.getId());
                                                             }
 
+                                                            long availableQty = 0;
+                                                            boolean noLongerAvailable = true;
                                                             for (String qtyId : cartItemModelList.get(finalX).getQtyIDs()) {
                                                                 if (!serverQuantity.contains(qtyId)) {
-                                                                    Toast.makeText(DeliveryActivity.this, "Sorry! All dishes may not be available in required quantity", Toast.LENGTH_SHORT).show();
-                                                                    allProductsAvailable = false;
-                                                                }
 
-                                                                if (serverQuantity.size() >= cartItemModelList.get(finalX).getStockQuantity()) {
-                                                                    firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(finalX).getProductID()).update("in_stock", false);
+                                                                    if (noLongerAvailable) {
+                                                                        cartItemModelList.get(finalX).setInStock(false);
+                                                                    } else {
+                                                                        cartItemModelList.get(finalX).setQtyError(true);
+                                                                        cartItemModelList.get(finalX).setMaxQuantity(availableQty);
+                                                                        Toast.makeText(DeliveryActivity.this, "Sorry! All dishes may not be available in required quantity", Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                    allProductsAvailable = false;
+                                                                } else {
+                                                                    availableQty++;
+                                                                    noLongerAvailable = false;
                                                                 }
                                                             }
+                                                            cartAdapter.notifyDataSetChanged();
                                                         } else {
                                                             String error = task.getException().getMessage();
                                                             Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
@@ -383,23 +394,6 @@ public class DeliveryActivity extends AppCompatActivity {
                                     public void onSuccess(Void aVoid) {
                                         if (qtyId.equals(cartItemModelList.get(finalX).getQtyIDs().get(cartItemModelList.get(finalX).getQtyIDs().size() - 1))) {
                                             cartItemModelList.get(finalX).getQtyIDs().clear();
-                                            firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(finalX).getProductID()).collection("QUANTITY").orderBy("time", Query.Direction.ASCENDING).get()
-                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                            if (task.isSuccessful()) {
-
-                                                                if (task.getResult().getDocuments().size() < cartItemModelList.get(finalX).getStockQuantity()) {
-                                                                    firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(finalX).getProductID()).update("in_stock", true);
-
-                                                                }
-
-                                                            } else {
-                                                                String error = task.getException().getMessage();
-                                                                Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
-                                                            }
-                                                        }
-                                                    });
                                         }
                                     }
                                 });
