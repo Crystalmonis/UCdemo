@@ -237,6 +237,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                             if (DBqueries.myRating.size() == 0) {
                                                 DBqueries.loadRatingList(ProductDetailsActivity.this);
                                             }
+                                            if (DBqueries.rewardModelList.size() == 0) {
+                                                DBqueries.loadRewards(ProductDetailsActivity.this, loadingDialog);
+                                            }
                                             if (DBqueries.cartList.size() == 0) {
                                                 DBqueries.loadCartList(ProductDetailsActivity.this, loadingDialog, false,badgeCount, new TextView(ProductDetailsActivity.this));
                                             }
@@ -608,20 +611,20 @@ public class ProductDetailsActivity extends AppCompatActivity {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         couponsRecyclerView.setLayoutManager(layoutManager);
 
-        List<RewardModel> rewardModelList = new ArrayList<>();
-        rewardModelList.add(new RewardModel("Cashback", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
-        rewardModelList.add(new RewardModel("Discount", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
-        rewardModelList.add(new RewardModel("Buy 1 Get 1 Free", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
-        rewardModelList.add(new RewardModel("Cashback", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
-        rewardModelList.add(new RewardModel("Discount", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
-        rewardModelList.add(new RewardModel("Buy 1 Get 1 Free", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
-        rewardModelList.add(new RewardModel("Cashback", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
-        rewardModelList.add(new RewardModel("Discount", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
-        rewardModelList.add(new RewardModel("Buy 1 Get 1 Free", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
+//        List<RewardModel> rewardModelList = new ArrayList<>();
+//        rewardModelList.add(new RewardModel("Cashback", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
+//        rewardModelList.add(new RewardModel("Discount", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
+//        rewardModelList.add(new RewardModel("Buy 1 Get 1 Free", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
+//        rewardModelList.add(new RewardModel("Cashback", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
+//        rewardModelList.add(new RewardModel("Discount", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
+//        rewardModelList.add(new RewardModel("Buy 1 Get 1 Free", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
+//        rewardModelList.add(new RewardModel("Cashback", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
+//        rewardModelList.add(new RewardModel("Discount", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
+//        rewardModelList.add(new RewardModel("Buy 1 Get 1 Free", "Till 2nd June 2021", "Get 20% cashback on any available dish above Rs. 200 /- and below Rs. 3000 /-"));
 
-        MyRewardsAdapter myRewardsAdapter = new MyRewardsAdapter(rewardModelList, true);
-        couponsRecyclerView.setAdapter(myRewardsAdapter);
-        myRewardsAdapter.notifyDataSetChanged();
+//        MyRewardsAdapter myRewardsAdapter = new MyRewardsAdapter(rewardModelList, true);
+//        couponsRecyclerView.setAdapter(myRewardsAdapter);
+//        myRewardsAdapter.notifyDataSetChanged();
 
         toggleRecyclerView.setOnClickListener(new View.OnClickListener() {
             @Override

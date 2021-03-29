@@ -8,6 +8,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.Viewholder> {
@@ -28,19 +31,19 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mini_rewards_item_layout, parent, false);
         } else {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rewards_item_layout, parent, false);
-
         }
-
         return new Viewholder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyRewardsAdapter.Viewholder holder, int position) {
-        String title = rewardModelList.get(position).getTitle();
-        String date = rewardModelList.get(position).getExpiryDate();
+        String type = rewardModelList.get(position).getType();
+        Date validity = rewardModelList.get(position).getTimestamp();
         String body = rewardModelList.get(position).getCouponBody();
-
-        holder.setData(title, date, body);
+        String lowerLimit = rewardModelList.get(position).getLowerLimit();
+        String upperLimit = rewardModelList.get(position).getUpperLimit();
+        String discORamt = rewardModelList.get(position).getDiscORamt();
+        holder.setData(type, validity, body,upperLimit,lowerLimit,discORamt);
 
     }
 
@@ -62,17 +65,26 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
             couponBody = itemView.findViewById(R.id.coupon_body_in_rewards_item);
         }
 
-        private void setData(String title, String date, String body) {
-            couponTitle.setText(title);
-            couponExpiryDate.setText(date);
+        private void setData(String type, Date validity, String body, String upperLimit, String lowerLimit, String discORamt) {
+
+            if(type.equals("Discount")){
+                couponTitle.setText(type);
+            } else {
+                couponTitle.setText("FLAT Rs."+discORamt+" OFF");
+            }
+
+            final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM YYYY");
+            couponExpiryDate.setText("Till "+simpleDateFormat.format(validity));
+
             couponBody.setText(body);
+
             if(useMiniLayout){
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ProductDetailsActivity.couponTitle.setText(title);
+                        ProductDetailsActivity.couponTitle.setText(type);
                         ProductDetailsActivity.couponBody.setText(body);
-                        ProductDetailsActivity.couponExpiryDate.setText(date);
+                        ProductDetailsActivity.couponExpiryDate.setText(simpleDateFormat.format(validity));
                         ProductDetailsActivity.showDialogRecyclerView();
                     }
                 });
