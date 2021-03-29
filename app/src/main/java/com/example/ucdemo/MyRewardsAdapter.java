@@ -1,5 +1,6 @@
 package com.example.ucdemo;
 
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +66,8 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
         String lowerLimit = rewardModelList.get(position).getLowerLimit();
         String upperLimit = rewardModelList.get(position).getUpperLimit();
         String discORamt = rewardModelList.get(position).getDiscORamt();
-        holder.setData(type,upperLimit,lowerLimit,discORamt,body,validity);
+        Boolean alreadyUsed = rewardModelList.get(position).isAlreadyUsed();
+        holder.setData(type, upperLimit, lowerLimit, discORamt, body, validity,alreadyUsed);
 
     }
 
@@ -87,54 +89,69 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
             couponBody = itemView.findViewById(R.id.coupon_body_in_rewards_item);
         }
 
-        private void setData(final String type, final String upperLimit, final String lowerLimit, final String discORamt, final String body, final Date validity) {
+        private void setData(final String type, final String upperLimit, final String lowerLimit, final String discORamt, final String body, final Date validity, boolean alreadyUsed) {
 
-            if(type.equals("Discount")){
+            if (type.equals("Discount")) {
                 couponTitle.setText(type);
             } else {
-                couponTitle.setText("FLAT Rs."+discORamt+" OFF");
+                couponTitle.setText("FLAT Rs." + discORamt + " OFF");
             }
 
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM YYYY");
-            couponExpiryDate.setText("Till "+simpleDateFormat.format(validity));
 
+            if(alreadyUsed){
+                couponExpiryDate.setText("Already used");
+                couponExpiryDate.setTextColor(itemView.getContext().getResources().getColor(R.color.user_theme));
+                couponBody.setTextColor(Color.parseColor("#50ffffff"));
+                couponTitle.setTextColor(Color.parseColor("#50ffffff"));
+            } else {
+                couponBody.setTextColor(Color.parseColor("#ffffff"));
+                couponTitle.setTextColor(Color.parseColor("#ffffff"));
+                couponExpiryDate.setTextColor(itemView.getContext().getResources().getColor(R.color.btn_red));
+                couponExpiryDate.setText("Till " + simpleDateFormat.format(validity));
+            }
             couponBody.setText(body);
 
-            if(useMiniLayout){
+            if (useMiniLayout) {
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (type.equals("Discount")) {
-                            selectedCouponTitle.setText(type);
-                        } else {
-                            selectedCouponTitle.setText("FLAT Rs." + discORamt + " OFF");
-                        }
 
-                        selectedCouponExpiryDate.setText("till " + simpleDateFormat.format(validity));
-                        selectedCouponBody.setText(body);
+                        if (!alreadyUsed) {
 
-                        if(Long.valueOf(productOriginalPrice) > Long.valueOf(upperLimit) && Long.valueOf(productOriginalPrice) < Long.valueOf(lowerLimit)){
-                            if(type.equals("Discount")){
-                                Long discountAmount = Long.valueOf(productOriginalPrice)*Long.valueOf(discORamt)/100;
-                                discountedPrice.setText("Rs." + String.valueOf(Long.valueOf(productOriginalPrice) - discountAmount) + "/-");
-                            } else{
-                                discountedPrice.setText("Rs." + String.valueOf(Long.valueOf(productOriginalPrice) - Long.valueOf(discORamt)) + "/-");
+                            if (type.equals("Discount")) {
+                                selectedCouponTitle.setText(type);
+                            } else {
+                                selectedCouponTitle.setText("FLAT Rs." + discORamt + " OFF");
                             }
 
-                        } else {
-                            discountedPrice.setText("Invalid");
-                            Toast.makeText(itemView.getContext(), "Sorry!Your order does not match the coupon terms", Toast.LENGTH_SHORT).show();
+                            selectedCouponExpiryDate.setText("till " + simpleDateFormat.format(validity));
+                            selectedCouponBody.setText(body);
 
+                            if (Long.valueOf(productOriginalPrice) > Long.valueOf(upperLimit) && Long.valueOf(productOriginalPrice) < Long.valueOf(lowerLimit)) {
+                                if (type.equals("Discount")) {
+                                    Long discountAmount = Long.valueOf(productOriginalPrice) * Long.valueOf(discORamt) / 100;
+                                    discountedPrice.setText("Rs." + String.valueOf(Long.valueOf(productOriginalPrice) - discountAmount) + "/-");
+                                } else {
+                                    discountedPrice.setText("Rs." + String.valueOf(Long.valueOf(productOriginalPrice) - Long.valueOf(discORamt)) + "/-");
+                                }
+
+                            } else {
+                                discountedPrice.setText("Invalid");
+                                Toast.makeText(itemView.getContext(), "Sorry!Your order does not match the coupon terms", Toast.LENGTH_SHORT).show();
+
+                            }
+
+
+                            if (couponsRecyclerView.getVisibility() == View.GONE) {
+                                couponsRecyclerView.setVisibility(View.VISIBLE);
+                                selectedCoupon.setVisibility(View.GONE);
+                            } else {
+                                couponsRecyclerView.setVisibility(View.GONE);
+                                selectedCoupon.setVisibility(View.VISIBLE);
+                            }
                         }
-
-
-                        if (couponsRecyclerView.getVisibility() == View.GONE) {
-                            couponsRecyclerView.setVisibility(View.VISIBLE);
-                            selectedCoupon.setVisibility(View.GONE);
-                        } else {
-                            couponsRecyclerView.setVisibility(View.GONE);
-                            selectedCoupon.setVisibility(View.VISIBLE);
-                        }                    }
+                    }
                 });
             }
         }

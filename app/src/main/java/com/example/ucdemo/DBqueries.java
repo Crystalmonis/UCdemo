@@ -517,6 +517,7 @@ public class DBqueries {
                                                                 , documentSnapshot.get("percentage").toString()
                                                                 , documentSnapshot.get("body").toString()
                                                                 , documentSnapshot.getTimestamp("validity").toDate()
+                                                                ,(boolean)documentSnapshot.get("already_used")
 
                                                         ));
                                                     } else if(documentSnapshot.get("type").toString().equals("Flat Rs.* OFF") && lastSeenDate.before(documentSnapshot.getDate("validity"))){
@@ -527,6 +528,7 @@ public class DBqueries {
                                                                 , documentSnapshot.get("amount").toString()
                                                                 , documentSnapshot.get("body").toString()
                                                                 , documentSnapshot.getTimestamp("validity").toDate()
+                                                                ,(boolean)documentSnapshot.get("already_used")
                                                         ));
                                                     }
                                                 }

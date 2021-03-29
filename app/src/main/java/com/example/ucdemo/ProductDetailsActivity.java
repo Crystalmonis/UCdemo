@@ -180,14 +180,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
         originalPrice = checkCouponPriceDialog.findViewById(R.id.original_price);
         discountedPrice = checkCouponPriceDialog.findViewById(R.id.discounted_price);
 
-
-
         LinearLayoutManager layoutManager = new LinearLayoutManager(ProductDetailsActivity.this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         couponsRecyclerView.setLayoutManager(layoutManager);
-
-
-
 
         toggleRecyclerView.setOnClickListener(new View.OnClickListener() {
             @Override

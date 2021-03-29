@@ -12,4 +12,6 @@
     <color name="successGreen">#11A10C</color>
     <color name="user_theme">#FFA055</color>
     <color name="RecyclerViewBackground">#E6E5E5</color>
+    <color name="couponPurple">#3606b6</color>
+    <color name="couponRed">#FF3030</color>
 </resources>

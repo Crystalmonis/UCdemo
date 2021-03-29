@@ -94,6 +94,12 @@ public class MyCartFragment extends Fragment {
     public void onStart() {
         super.onStart();
         cartAdapter.notifyDataSetChanged();
+
+        if(DBqueries.rewardModelList.size() == 0){
+            loadingDialog.show();
+            DBqueries.loadRewards(getContext(),loadingDialog,false);
+        }
+
         if (DBqueries.cartItemModelList.size() == 0) {
             DBqueries.cartList.clear();
             DBqueries.loadCartList(getContext(), loadingDialog, true, new TextView(getContext()),totalAmount);
