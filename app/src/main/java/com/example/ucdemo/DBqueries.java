@@ -355,7 +355,7 @@ public class DBqueries {
                                                                                 , documentSnapshot.get("product_price").toString()
                                                                                 , documentSnapshot.get("cutted_price").toString()
                                                                                 , (long) 1
-                                                                                , (long) 0
+                                                                                , (long) documentSnapshot.get("offers_applied")
                                                                                 , (long) 0
                                                                                 , true
                                                                                 , (long) documentSnapshot.get("max-quantity")
@@ -370,7 +370,7 @@ public class DBqueries {
                                                                                 , documentSnapshot.get("product_price").toString()
                                                                                 , documentSnapshot.get("cutted_price").toString()
                                                                                 , (long) 1
-                                                                                , (long) 0
+                                                                                , (long) documentSnapshot.get("offers_applied")
                                                                                 , (long) 0
                                                                                 , true
                                                                                 , (long) documentSnapshot.get("max-quantity")
@@ -492,14 +492,14 @@ public class DBqueries {
                 });
     }
 
-    public static void loadRewards(final Context context, Dialog loadingDialog,final boolean onRewardFragment) {
+    public static void loadRewards(final Context context, Dialog loadingDialog, final boolean onRewardFragment) {
         rewardModelList.clear();
 
         firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             final Date lastSeenDate = task.getResult().getDate("Last seen");
 
                             firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_REWARDS")
@@ -511,28 +511,30 @@ public class DBqueries {
                                                 for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                                     if (documentSnapshot.get("type").toString().equals("Discount") && lastSeenDate.before(documentSnapshot.getDate("validity"))) {
                                                         rewardModelList.add(new RewardModel(
-                                                                documentSnapshot.get("type").toString()
+                                                                documentSnapshot.getId()
+                                                                , documentSnapshot.get("type").toString()
                                                                 , documentSnapshot.get("upper_limit").toString()
                                                                 , documentSnapshot.get("lower_limit").toString()
                                                                 , documentSnapshot.get("percentage").toString()
                                                                 , documentSnapshot.get("body").toString()
                                                                 , documentSnapshot.getTimestamp("validity").toDate()
-                                                                ,(boolean)documentSnapshot.get("already_used")
+                                                                , (boolean) documentSnapshot.get("already_used")
 
                                                         ));
-                                                    } else if(documentSnapshot.get("type").toString().equals("Flat Rs.* OFF") && lastSeenDate.before(documentSnapshot.getDate("validity"))){
+                                                    } else if (documentSnapshot.get("type").toString().equals("Flat Rs.* OFF") && lastSeenDate.before(documentSnapshot.getDate("validity"))) {
                                                         rewardModelList.add(new RewardModel(
-                                                                documentSnapshot.get("type").toString()
+                                                                documentSnapshot.getId()
+                                                                , documentSnapshot.get("type").toString()
                                                                 , documentSnapshot.get("upper_limit").toString()
                                                                 , documentSnapshot.get("lower_limit").toString()
                                                                 , documentSnapshot.get("amount").toString()
                                                                 , documentSnapshot.get("body").toString()
                                                                 , documentSnapshot.getTimestamp("validity").toDate()
-                                                                ,(boolean)documentSnapshot.get("already_used")
+                                                                , (boolean) documentSnapshot.get("already_used")
                                                         ));
                                                     }
                                                 }
-                                                if(onRewardFragment) {
+                                                if (onRewardFragment) {
                                                     MyRewardsFragment.myRewardsAdapter.notifyDataSetChanged();
                                                 }
                                             } else {

@@ -28,6 +28,7 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
     private TextView selectedCouponExpiryDate;
     private TextView selectedCouponBody;
     private TextView discountedPrice;
+    private int cartItemPosition;
 
     public MyRewardsAdapter(List<RewardModel> rewardModelList, Boolean useMiniLayout) {
         this.rewardModelList = rewardModelList;
@@ -44,6 +45,19 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
         this.selectedCouponExpiryDate = couponExpiryDate;
         this.selectedCouponBody = couponBody;
         this.discountedPrice = discountedPrice;
+    }
+
+    public MyRewardsAdapter(int cartItemPosition, List<RewardModel> rewardModelList, Boolean useMiniLayout, RecyclerView couponsRecyclerView, LinearLayout selectedCoupon, String productOriginalPrice, TextView couponTitle, TextView couponExpiryDate, TextView couponBody, TextView discountedPrice) {
+        this.rewardModelList = rewardModelList;
+        this.useMiniLayout = useMiniLayout;
+        this.couponsRecyclerView = couponsRecyclerView;
+        this.selectedCoupon = selectedCoupon;
+        this.productOriginalPrice = productOriginalPrice;
+        this.selectedCouponTitle = couponTitle;
+        this.selectedCouponExpiryDate = couponExpiryDate;
+        this.selectedCouponBody = couponBody;
+        this.discountedPrice = discountedPrice;
+        this.cartItemPosition = cartItemPosition;
     }
 
     @NonNull
@@ -67,7 +81,8 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
         String upperLimit = rewardModelList.get(position).getUpperLimit();
         String discORamt = rewardModelList.get(position).getDiscORamt();
         Boolean alreadyUsed = rewardModelList.get(position).isAlreadyUsed();
-        holder.setData(type, upperLimit, lowerLimit, discORamt, body, validity,alreadyUsed);
+        String couponId = rewardModelList.get(position).getCouponId();
+        holder.setData(couponId,type, upperLimit, lowerLimit, discORamt, body, validity,alreadyUsed);
 
     }
 
@@ -89,7 +104,7 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
             couponBody = itemView.findViewById(R.id.coupon_body_in_rewards_item);
         }
 
-        private void setData(final String type, final String upperLimit, final String lowerLimit, final String discORamt, final String body, final Date validity, boolean alreadyUsed) {
+        private void setData(final String couponId,final String type, final String upperLimit, final String lowerLimit, final String discORamt, final String body, final Date validity, boolean alreadyUsed) {
 
             if (type.equals("Discount")) {
                 couponTitle.setText(type);
@@ -135,8 +150,9 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
                                 } else {
                                     discountedPrice.setText("Rs." + String.valueOf(Long.valueOf(productOriginalPrice) - Long.valueOf(discORamt)) + "/-");
                                 }
-
+                                DBqueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(couponId);
                             } else {
+                                DBqueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(null);
                                 discountedPrice.setText("Invalid");
                                 Toast.makeText(itemView.getContext(), "Sorry!Your order does not match the coupon terms", Toast.LENGTH_SHORT).show();
 

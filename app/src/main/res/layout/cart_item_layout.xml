@@ -94,8 +94,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:text="Offers Applied"
-        android:textSize="12sp"
         android:textColor="@color/successGreen"
+        android:textSize="12sp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/product_price_in_cart" />
 
@@ -107,6 +108,7 @@
         android:text="Coupons Applied"
         android:textColor="@color/red"
         android:textSize="12sp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/offers_applied" />
 
@@ -144,9 +146,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Check price after coupon redemption"
+            android:text="Apply your coupon here"
+            android:layout_gravity="center_vertical"
+            android:padding="3dp"
             android:textAlignment="center"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            tools:ignore="RtlCompat" />
 
         <Button
             android:id="@+id/coupon_redemption_btn"
@@ -154,6 +159,7 @@
             android:layout_height="30dp"
             android:background="@drawable/border_background"
             android:text="Redeem"
+            android:layout_gravity="center_vertical"
             android:textColor="@color/white"
             android:textSize="12sp" />
     </LinearLayout>

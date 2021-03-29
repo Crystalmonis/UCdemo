@@ -12,8 +12,9 @@ public class RewardModel {
     private String couponBody;
     private Date timestamp;
     private boolean alreadyUsed;
+    private String couponId;
 
-    public RewardModel(String type, String lowerLimit, String upperLimit, String discORamt, String couponBody, Date timestamp, Boolean alreadyUsed) {
+    public RewardModel(String couponId,String type, String lowerLimit, String upperLimit, String discORamt, String couponBody, Date timestamp, Boolean alreadyUsed) {
         this.type = type;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
@@ -21,6 +22,15 @@ public class RewardModel {
         this.couponBody = couponBody;
         this.timestamp = timestamp;
         this.alreadyUsed = alreadyUsed;
+        this.couponId = couponId;
+    }
+
+    public String getCouponId() {
+        return couponId;
+    }
+
+    public void setCouponId(String couponId) {
+        this.couponId = couponId;
     }
 
     public boolean isAlreadyUsed() {
