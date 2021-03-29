@@ -110,7 +110,7 @@ public class CartAdapter extends RecyclerView.Adapter {
                         totalItemPrice = totalItemPrice + Integer.parseInt(cartItemModelList.get(x).getProductPrice());
                     }
                 }
-                if (totalItemPrice > 200) {
+                if (totalItemPrice > 500) {
                     deliveryPrice = "FREE";
                     totalAmount = totalItemPrice;
                 } else {

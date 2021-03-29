@@ -331,7 +331,8 @@ public class HomePageAdapter extends RecyclerView.Adapter {
                         @Override
                         public void onClick(View v) {
                             Intent productDetailsIntent = new Intent(itemView.getContext(), ProductDetailsActivity.class);
-                            productDetailsIntent.putExtra("PRODUCT_ID",horizontalProductScrollModelList.get(finalX).getProductID());
+                            //productDetailsIntent.putExtra("PRODUCT_ID",horizontalProductScrollModelList.get(finalX).getProductID());
+                            productDetailsIntent.putExtra("PRODUCT_ID","Z4BAs5R2DaEqkfabbXpS");
                             itemView.getContext().startActivity(productDetailsIntent);
                         }
                     });
