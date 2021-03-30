@@ -112,7 +112,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
     private DocumentSnapshot documentSnapshot;
     private TextView badgeCount;
-    private boolean inStock;
+    private boolean inStock = false;
 
     FirebaseFirestore firebaseFirestore;
     public static String productID;
@@ -315,6 +315,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                         if (task.getResult().getDocuments().size() < (long)documentSnapshot.get("stock_quantity")) {
 
                                             inStock = true;
+                                            buyNowBtn.setVisibility(View.VISIBLE);
 
                                             addToCartBtn.setOnClickListener(new View.OnClickListener() {
                                                 @Override
@@ -347,7 +348,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                                                                                         , documentSnapshot.get("product_price").toString()
                                                                                         , documentSnapshot.get("cutted_price").toString()
                                                                                         , (long) 1
-                                                                                        , (long) 0
+                                                                                        , (long) documentSnapshot.get("offers_applied")
                                                                                         , (long) 0
                                                                                         ,inStock
                                                                                         ,(long)documentSnapshot.get("max-quantity")
@@ -610,7 +611,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             , documentSnapshot.get("cutted_price").toString()
                             , (long) 1
                             , (long) 0
-                            , (long) 0
+                            , (long) documentSnapshot.get("offers_applied")
                             ,inStock
                             ,(long) documentSnapshot.get("max-quantity")
                             ,(long) documentSnapshot.get("stock_quantity")
@@ -689,10 +690,13 @@ public class ProductDetailsActivity extends AppCompatActivity {
             }
             if (DBqueries.wishList.size() == 0) {
                 DBqueries.loadWishlist(ProductDetailsActivity.this, loadingDialog, false);
-            } else {
+            }
+            if (DBqueries.rewardModelList.size() == 0) {
+                DBqueries.loadRewards(ProductDetailsActivity.this, loadingDialog,false);
+            }
+            if(DBqueries.cartList.size() != 0 && DBqueries.wishList.size() != 0 && DBqueries.rewardModelList.size() != 0){
                 loadingDialog.dismiss();
             }
-
         } else {
             loadingDialog.dismiss();
         }

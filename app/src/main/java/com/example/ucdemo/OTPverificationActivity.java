@@ -1,5 +1,6 @@
 package com.example.ucdemo;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -17,6 +18,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,8 +59,24 @@ public class OTPverificationActivity extends AppCompatActivity {
 
                         if(otp.getText().toString().equals(String.valueOf(OTP_number))){
 
-                            DeliveryActivity.codOrderConfirmed = true;
-                            finish();
+                            Map<String, Object>  updatestatus = new HashMap<>();
+                            updatestatus.put("Payment Status","Paid");
+                            updatestatus.put("Order Status","Ordered");
+                            String OrderID = getIntent().getStringExtra("OrderID");
+                            FirebaseFirestore.getInstance().collection("ORDERS").document(OrderID).update(updatestatus)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if(task.isSuccessful()){
+                                                DeliveryActivity.codOrderConfirmed = true;
+                                                finish();
+                                            } else {
+                                                Toast.makeText(OTPverificationActivity.this,"Order CANCELLED",Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+
+
                         } else {
                             Toast.makeText(OTPverificationActivity.this,"Incorrect OTP",Toast.LENGTH_LONG).show();
                         }
