@@ -18,6 +18,7 @@ import java.util.List;
 public class MyOrdersFragment extends Fragment {
 
     private RecyclerView myOrdersRecyclerView;
+    public static MyOrderAdapter myOrderAdapter;
 
     public MyOrdersFragment() {
         // Required empty public constructor
@@ -36,7 +37,7 @@ public class MyOrdersFragment extends Fragment {
 
 
 
-        MyOrderAdapter myOrderAdapter = new MyOrderAdapter(DBqueries.myOrderItemModelList);
+        myOrderAdapter = new MyOrderAdapter(DBqueries.myOrderItemModelList);
         myOrdersRecyclerView.setAdapter(myOrderAdapter);
 
         if(DBqueries.myOrderItemModelList.size() == 0){

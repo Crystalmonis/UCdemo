@@ -27,7 +27,7 @@ public class MyOrderItemModel {
     private Long productQuantity;
     private String userId;
 
-    private int rating;
+    private int rating = 0;
 
 
     public MyOrderItemModel(String productId, String orderStatus, String address, String couponId, String cuttedPrice, Date orderedDate, Date confirmedDate, Date cookedDate, Date completedDate, Date cancelledDate, String discountedPrice, Long freeCoupons, String fullName, String orderID, String paymentMethod, String pincode, String productPrice, Long productQuantity, String userId, String productImage, String productTitle) {
@@ -52,6 +52,14 @@ public class MyOrderItemModel {
         this.productPrice = productPrice;
         this.productQuantity = productQuantity;
         this.userId = userId;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 
     public String getProductId() {

@@ -284,6 +284,10 @@ public class DBqueries {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {
+                        List<String> orderProductIds = new ArrayList<>();
+                        for(int x = 0; x < myOrderItemModelList.size(); x++){
+                            orderProductIds.add(myOrderItemModelList.get(x).getProductId());
+                        }
                         for (long x = 0; x < (long) task.getResult().get("list_size"); x++) {
                             myRatedIds.add(task.getResult().get("product_ID_" + x).toString());
                             myRating.add((long) task.getResult().get("rating_" + x));
@@ -294,13 +298,19 @@ public class DBqueries {
                                     ProductDetailsActivity.setRating(ProductDetailsActivity.initialRating);
                                 }
                             }
+
+                            if(orderProductIds.contains(task.getResult().get("product_ID_" + x).toString())){
+                                myOrderItemModelList.get(orderProductIds.indexOf(task.getResult().get("product_ID_" + x).toString())).setRating(Integer.parseInt(String.valueOf((long) task.getResult().get("rating_" + x))) - 1);
+                            }
+                        }
+                        if(MyOrdersFragment.myOrderAdapter != null){
+                            MyOrdersFragment.myOrderAdapter.notifyDataSetChanged();
                         }
                     } else {
                         String error = task.getException().getMessage();
                         Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                     }
                     ProductDetailsActivity.running_rating_query = false;
-                    ;
                 }
             });
         }
@@ -572,11 +582,11 @@ public class DBqueries {
                                                 if(task.isSuccessful()){
                                                     for(DocumentSnapshot orderItems : task.getResult().getDocuments()){
 
-                                                        MyOrderItemModel myOrderItemModel = new MyOrderItemModel(orderItems.getString("Product Id"),orderItems.getString("Order Status"),orderItems.getString("Address"),orderItems.getString("Coupon Id"),orderItems.getString("Cutted Price"),orderItems.getDate("Ordered Date"),orderItems.getDate("Confirmed Date"),orderItems.getDate("Cooked Date"),orderItems.getDate("Completed Date"),orderItems.getDate("Cancelled Date"),orderItems.getString("Discounted Price"),orderItems.getLong("Free Coupons"),orderItems.getString("Fullname"),orderItems.getString("ORDER ID"),orderItems.getString("Payment Method"),orderItems.getString("Pincode"),orderItems.getString("Product Price"),orderItems.getLong("Product Quantity"),orderItems.getString("User Id"),orderItems.getString("Product Image"),orderItems.getString("Product Title"));
-
+                                                        MyOrderItemModel myOrderItemModel = new MyOrderItemModel(orderItems.getString("Product Id"),orderItems.getString("Order Status"),orderItems.getString("Address"),orderItems.getString("Coupon Id"),orderItems.getString("Cutted Price"),orderItems.getDate("Ordered Date"),orderItems.getDate("Confirmation Date"),orderItems.getDate("Cooked Date"),orderItems.getDate("Completed Date"),orderItems.getDate("Cancelled Date"),orderItems.getString("Discounted Price"),orderItems.getLong("Free Coupons"),orderItems.getString("Fullname"),orderItems.getString("ORDER ID"),orderItems.getString("Payment Method"),orderItems.getString("Pincode"),orderItems.getString("Product Price"),orderItems.getLong("Product Quantity"),orderItems.getString("User Id"),orderItems.getString("Product Image"),orderItems.getString("Product Title"));
                                                         myOrderItemModelList.add(myOrderItemModel);
 
                                                     }
+                                                    loadRatingList(context);
                                                     myOrderAdapter.notifyDataSetChanged();
                                                 } else {
                                                     String error = task.getException().getMessage();

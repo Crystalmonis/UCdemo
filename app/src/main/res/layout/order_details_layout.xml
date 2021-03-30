@@ -104,7 +104,7 @@
         app:tint="@color/RecyclerViewBackground" />
 
     <ProgressBar
-        android:id="@+id/confirmed_cooked_indicator"
+        android:id="@+id/confirmed_cooked_progress"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="60dp"
         android:layout_height="3dp"
@@ -156,7 +156,7 @@
         app:tint="@color/RecyclerViewBackground" />
 
     <TextView
-        android:id="@+id/textView20"
+        android:id="@+id/ordered_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -174,9 +174,9 @@
         android:layout_marginStart="8dp"
         android:text="Monday 10th March 2021 - 7:00 a.m."
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView20"
-        app:layout_constraintStart_toEndOf="@+id/textView20"
-        app:layout_constraintTop_toTopOf="@+id/textView20" />
+        app:layout_constraintBottom_toBottomOf="@+id/ordered_title"
+        app:layout_constraintStart_toEndOf="@+id/ordered_title"
+        app:layout_constraintTop_toTopOf="@+id/ordered_title" />
 
     <TextView
         android:id="@+id/ordered_body"
@@ -186,8 +186,8 @@
         android:text="You have requested to book the Chef"
         android:textColor="#000000"
         android:textSize="10sp"
-        app:layout_constraintStart_toStartOf="@+id/textView20"
-        app:layout_constraintTop_toBottomOf="@+id/textView20" />
+        app:layout_constraintStart_toStartOf="@+id/ordered_title"
+        app:layout_constraintTop_toBottomOf="@+id/ordered_title" />
 
     <TextView
         android:id="@+id/confirmed_title"
@@ -361,7 +361,7 @@
         android:id="@+id/divider8"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

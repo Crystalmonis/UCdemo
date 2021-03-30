@@ -12,9 +12,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
 
 import java.util.Date;
 import java.util.List;
@@ -37,8 +44,9 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.Viewhold
 
     @Override
     public void onBindViewHolder(@NonNull MyOrderAdapter.Viewholder holder, int position) {
+        String productId = myOrderItemModelList.get(position).getProductId();
         String resource = myOrderItemModelList.get(position).getProductImage();
-        //int rating = myOrderItemModelList.get(position).getRating();
+        int rating = myOrderItemModelList.get(position).getRating();
         String title = myOrderItemModelList.get(position).getProductTitle();
         String orderStatus = myOrderItemModelList.get(position).getOrderStatus();
         Date date;
@@ -62,7 +70,7 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.Viewhold
                 date = myOrderItemModelList.get(position).getCancelledDate();
 
         }
-        holder.setData(resource,title,orderStatus,date);
+        holder.setData(resource,title,orderStatus,date,rating,productId,position);
     }
 
     @Override
@@ -85,16 +93,10 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.Viewhold
             orderIndicator = itemView.findViewById(R.id.order_indicator);
             deliveryStatus = itemView.findViewById(R.id.order_delivered_date);
             rateNowContainer = itemView.findViewById(R.id.rate_now_container);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent orderDetailsIntent = new Intent(itemView.getContext(),OrderDetailsActivity.class);
-                    itemView.getContext().startActivity(orderDetailsIntent);
-                }
-            });
+
         }
 
-        private void setData(String resource,String title, String orderStatus, Date date){
+        private void setData(String resource,String title, String orderStatus, Date date, int rating, final String productID, int position){
             Glide.with(itemView.getContext()).load(resource).into(productImage);
             productTitle.setText(title);
             if(orderStatus.equals("Cancelled")) {
@@ -104,14 +106,55 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.Viewhold
             }
             deliveryStatus.setText(orderStatus + String.valueOf(date));
 
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent orderDetailsIntent = new Intent(itemView.getContext(),OrderDetailsActivity.class);
+                    orderDetailsIntent.putExtra("Position",position);
+                    itemView.getContext().startActivity(orderDetailsIntent);
+                }
+            });
+
             //////////Rating Layout
-            //setRating(rating);
+            setRating(rating);
             for(int x = 0; x < rateNowContainer.getChildCount(); x++){
                 final int starPosition = x;
                 rateNowContainer.getChildAt(x).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         setRating(starPosition);
+                        DocumentReference documentReference = FirebaseFirestore.getInstance().collection("PRODUCTS").document("Z4BAs5R2DaEqkfabbXpS");
+                        FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<Object>() {
+                            @Nullable
+                            @Override
+                            public Object apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+
+                                DocumentSnapshot documentSnapshot = transaction.get(documentReference);
+
+                                if(rating != 0){
+                                    Long increase = documentSnapshot.getLong(starPosition + "_star") + 1;
+                                    Long decrease = documentSnapshot.getLong(rating + "_star") - 1;
+                                    transaction.update(documentReference,starPosition+"_star",increase);
+                                    transaction.update(documentReference,rating+"_star",decrease);
+                                } else{
+                                    Long increase = documentSnapshot.getLong(starPosition + "_star") + 1;
+                                    transaction.update(documentReference,starPosition+"_star",increase);
+                                }
+
+                                return null;
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<Object>() {
+                            @Override
+                            public void onSuccess(Object object) {
+                                DBqueries.myOrderItemModelList.get(position).setRating(starPosition);
+                                if(DBqueries.myRatedIds.contains(productID)){
+                                    DBqueries.myRating.set(DBqueries.myRatedIds.indexOf(productID),Long.parseLong(String.valueOf(starPosition)));
+                                } else {
+                                    DBqueries.myRatedIds.add(productID);
+                                    DBqueries.myRating.add(Long.parseLong(String.valueOf(starPosition)));
+                                }
+                            }
+                        });
                     }
                 });
             }
