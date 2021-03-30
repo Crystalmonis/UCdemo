@@ -28,7 +28,7 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
     private TextView selectedCouponExpiryDate;
     private TextView selectedCouponBody;
     private TextView discountedPrice;
-    private int cartItemPosition;
+    private int cartItemPosition = -1;
 
     public MyRewardsAdapter(List<RewardModel> rewardModelList, Boolean useMiniLayout) {
         this.rewardModelList = rewardModelList;
@@ -150,9 +150,13 @@ public class MyRewardsAdapter extends RecyclerView.Adapter<MyRewardsAdapter.View
                                 } else {
                                     discountedPrice.setText("Rs." + String.valueOf(Long.valueOf(productOriginalPrice) - Long.valueOf(discORamt)) + "/-");
                                 }
-                                DBqueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(couponId);
+                                if(cartItemPosition != -1) {
+                                    DBqueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(couponId);
+                                }
                             } else {
-                                DBqueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(null);
+                                if(cartItemPosition != -1) {
+                                    DBqueries.cartItemModelList.get(cartItemPosition).setSelectedCouponId(null);
+                                }
                                 discountedPrice.setText("Invalid");
                                 Toast.makeText(itemView.getContext(), "Sorry!Your order does not match the coupon terms", Toast.LENGTH_SHORT).show();
 
