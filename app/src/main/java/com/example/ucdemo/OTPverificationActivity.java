@@ -20,6 +20,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -57,28 +58,39 @@ public class OTPverificationActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        if(otp.getText().toString().equals(String.valueOf(OTP_number))){
+                        if (otp.getText().toString().equals(String.valueOf(OTP_number))) {
 
-                            Map<String, Object>  updatestatus = new HashMap<>();
-                            updatestatus.put("Payment Status","Paid");
-                            updatestatus.put("Order Status","Ordered");
+                            Map<String, Object> updatestatus = new HashMap<>();
+                            updatestatus.put("Order Status", "Ordered");
                             String OrderID = getIntent().getStringExtra("OrderID");
                             FirebaseFirestore.getInstance().collection("ORDERS").document(OrderID).update(updatestatus)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
-                                            if(task.isSuccessful()){
-                                                DeliveryActivity.codOrderConfirmed = true;
-                                                finish();
+                                            if (task.isSuccessful()) {
+                                                Map<String, Object> userOrder = new HashMap<>();
+                                                userOrder.put("order_id", OrderID);
+                                                FirebaseFirestore.getInstance().collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_ORDERS").document(OrderID).set(userOrder)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()) {
+                                                                    DeliveryActivity.codOrderConfirmed = true;
+                                                                    finish();
+                                                                } else {
+                                                                    Toast.makeText(OTPverificationActivity.this, "Failed to update user order list", Toast.LENGTH_LONG).show();
+                                                                }
+                                                            }
+                                                        });
                                             } else {
-                                                Toast.makeText(OTPverificationActivity.this,"Order CANCELLED",Toast.LENGTH_LONG).show();
+                                                Toast.makeText(OTPverificationActivity.this, "Order CANCELLED", Toast.LENGTH_LONG).show();
                                             }
                                         }
                                     });
 
 
                         } else {
-                            Toast.makeText(OTPverificationActivity.this,"Incorrect OTP",Toast.LENGTH_LONG).show();
+                            Toast.makeText(OTPverificationActivity.this, "Incorrect OTP", Toast.LENGTH_LONG).show();
                         }
 
                     }
@@ -89,32 +101,32 @@ public class OTPverificationActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 finish();
-                Toast.makeText(OTPverificationActivity.this,"Failed to send the OTP verification code",Toast.LENGTH_LONG).show();
+                Toast.makeText(OTPverificationActivity.this, "Failed to send the OTP verification code", Toast.LENGTH_LONG).show();
             }
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("authorization","YDIOPmgdFRaECih4BM0WAGNnXwoQ7JSvplKyLe5uqtxcfTZ932JGD1fyKrF6sEqpUeHSXwYchx2vjRLZ");
+                headers.put("authorization", "YDIOPmgdFRaECih4BM0WAGNnXwoQ7JSvplKyLe5uqtxcfTZ932JGD1fyKrF6sEqpUeHSXwYchx2vjRLZ");
                 return headers;
             }
 
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> body = new HashMap<>();
-                body.put("sender_id","TXTIND");
-                body.put("message",message);
-                body.put("language","english");
-                body.put("route","v3");
-                body.put("numbers",userNo);
-                body.put("sender_id","TXTIND");
+                body.put("sender_id", "TXTIND");
+                body.put("message", message);
+                body.put("language", "english");
+                body.put("route", "v3");
+                body.put("numbers", userNo);
+                body.put("sender_id", "TXTIND");
 
 
                 return body;
             }
         };
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
         RequestQueue requestQueue = Volley.newRequestQueue(OTPverificationActivity.this);
         requestQueue.add(stringRequest);

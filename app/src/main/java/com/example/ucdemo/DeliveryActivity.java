@@ -458,6 +458,8 @@ public class DeliveryActivity extends AppCompatActivity {
                 Map<String,Object> orderDetails = new HashMap<>();
                 orderDetails.put("ORDER ID",order_id);
                 orderDetails.put("PRODUCT Id",cartItemModel.getProductID());
+                orderDetails.put("Product Image",cartItemModel.getProductImage());
+                orderDetails.put("Product Title",cartItemModel.getProductTitle());
                 orderDetails.put("User Id",userID);
                 orderDetails.put("Product Quantity",cartItemModel.getProductQuantity());
                 if(cartItemModel.getCuttedPrice() != null) {
@@ -476,10 +478,15 @@ public class DeliveryActivity extends AppCompatActivity {
                 } else {
                     orderDetails.put("Discounted Price","");
                 }
-                orderDetails.put("Date",FieldValue.serverTimestamp());
+                orderDetails.put("Ordered Date",FieldValue.serverTimestamp());
+                orderDetails.put("Confirmation Date",FieldValue.serverTimestamp());
+                orderDetails.put("Cooked Date",FieldValue.serverTimestamp());
+                orderDetails.put("Completed Date",FieldValue.serverTimestamp());
+                orderDetails.put("Cancelled Date",FieldValue.serverTimestamp());
+                orderDetails.put("Order Status","Ordered");
                 orderDetails.put("Payment Method",paymentMethod);
                 orderDetails.put("Address",fullAddress.getText());
-                orderDetails.put("FullName",fullName.getText());
+                orderDetails.put("Fullname",fullName.getText());
                 orderDetails.put("Pincode",pincode.getText());
                 orderDetails.put("Free Coupons",cartItemModel.getFreeCoupons());
 
@@ -580,7 +587,19 @@ public class DeliveryActivity extends AppCompatActivity {
                                                         @Override
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if(task.isSuccessful()){
-                                                                showConfirmationLayout();
+                                                                Map<String,Object> userOrder = new HashMap<>();
+                                                                userOrder.put("order_id",order_id);
+                                                                firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_ORDERS").document(order_id).set(userOrder)
+                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                                if(task.isSuccessful()){
+                                                                                    showConfirmationLayout();
+                                                                                } else {
+                                                                                    Toast.makeText(DeliveryActivity.this,"Failed to update user order list",Toast.LENGTH_LONG).show();
+                                                                                }
+                                                                            }
+                                                                        });
                                                             } else {
                                                                 Toast.makeText(DeliveryActivity.this,"Order CANCELLED",Toast.LENGTH_LONG).show();
                                                             }
