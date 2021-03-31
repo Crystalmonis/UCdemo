@@ -220,7 +220,7 @@ public class DeliveryActivity extends AppCompatActivity {
                     timestamp.put("time", FieldValue.serverTimestamp());
                     final int finalX = x;
                     final int finalY = y;
-                    firebaseFirestore.collection("PRODUCTS").document("Z4BAs5R2DaEqkfabbXpS").collection("QUANTITY").document(quantityDocumentName)
+                    firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(x).getProductID()).collection("QUANTITY").document(quantityDocumentName)
                             .set(timestamp)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
@@ -229,8 +229,7 @@ public class DeliveryActivity extends AppCompatActivity {
 
                                         cartItemModelList.get(finalX).getQtyIDs().add(quantityDocumentName);
                                         if (finalY + 1 == cartItemModelList.get(finalX).getProductQuantity()) {
-
-                                            firebaseFirestore.collection("PRODUCTS").document("Z4BAs5R2DaEqkfabbXpS").collection("QUANTITY").orderBy("time", Query.Direction.ASCENDING).limit(cartItemModelList.get(finalX).getStockQuantity()).get()
+                                            firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(finalX).getProductID()).collection("QUANTITY").orderBy("time", Query.Direction.ASCENDING).limit(cartItemModelList.get(finalX).getStockQuantity()).get()
                                                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -367,12 +366,9 @@ public class DeliveryActivity extends AppCompatActivity {
         getQtyIDs = false;
         for (int x = 0; x < cartItemModelList.size() - 1; x++) {
 
-            for (String qtyId : cartItemModelList.get(x).getQtyIDs()) {
-
-                firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(x).getProductID()).collection("QUANTITY").document(qtyId).update("user_ID", FirebaseAuth.getInstance().getUid());
-
+            for (String qtyID : cartItemModelList.get(x).getQtyIDs()) {
+                firebaseFirestore.collection("PRODUCTS").document(cartItemModelList.get(x).getProductID()).collection("QUANTITY").document(qtyID).update("user_ID", FirebaseAuth.getInstance().getUid());
             }
-
 
         }
 
@@ -437,15 +433,15 @@ public class DeliveryActivity extends AppCompatActivity {
             loadingDialog.show();
             Map<String, Object> updateCartlist = new HashMap<>();
             long cartListSize = 0;
-            List<Integer> indexList = new ArrayList<>();
-
-            for (int x = 0; x < DBqueries.cartItemModelList.size(); x++) {
+            final List<Integer> indexList = new ArrayList<>();
+            for (int x = 0; x < DBqueries.cartList.size(); x++) {
                 if (!cartItemModelList.get(x).isInStock()) {
                     updateCartlist.put("product_ID_" + cartListSize, cartItemModelList.get(x).getProductID());
                     cartListSize++;
                 } else {
                     indexList.add(x);
                 }
+
             }
             updateCartlist.put("list_size", cartListSize);
 

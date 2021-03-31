@@ -197,14 +197,14 @@ public class ProductDetailsActivity extends AppCompatActivity {
         List<String> productImages = new ArrayList<>();
 
         productID = getIntent().getStringExtra("PRODUCT_ID");
-        firebaseFirestore.collection("PRODUCTS").document("Z4BAs5R2DaEqkfabbXpS")
+        firebaseFirestore.collection("PRODUCTS").document(productID)
                 .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     documentSnapshot = task.getResult();
 
-                    firebaseFirestore.collection("PRODUCTS").document("Z4BAs5R2DaEqkfabbXpS").collection("QUANTITY").orderBy("time", Query.Direction.ASCENDING).get()
+                    firebaseFirestore.collection("PRODUCTS").document(productID).collection("QUANTITY").orderBy("time", Query.Direction.ASCENDING).get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {

@@ -137,7 +137,7 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.Viewhold
                     public void onClick(View v) {
                         loadingDialog.show();
                         setRating(starPosition);
-                        DocumentReference documentReference = FirebaseFirestore.getInstance().collection("PRODUCTS").document("Z4BAs5R2DaEqkfabbXpS");
+                        DocumentReference documentReference = FirebaseFirestore.getInstance().collection("PRODUCTS").document(productID);
                         FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<Object>() {
                             @Nullable
                             @Override
