@@ -72,6 +72,8 @@ public class DeliveryActivity extends AppCompatActivity {
     private Button continuebtn;
     public static Dialog loadingDialog;
     private Dialog paymentMethodDialog;
+    private TextView codTitle;
+    private View divider;
     private ImageButton paytm, cod;
     private String paymentMethod = "PAYTM";
     private ConstraintLayout orderConfirmationLayout;
@@ -124,6 +126,8 @@ public class DeliveryActivity extends AppCompatActivity {
         paymentMethodDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.slider_background));
         paytm = paymentMethodDialog.findViewById(R.id.paytm);
         cod = paymentMethodDialog.findViewById(R.id.cod_btn);
+        codTitle = paymentMethodDialog.findViewById(R.id.cod_title_btn);
+        divider = paymentMethodDialog.findViewById(R.id.payment_divider);
         //////////////Payment Method dialog
         firebaseFirestore = FirebaseFirestore.getInstance();
         getQtyIDs = true;
@@ -159,6 +163,21 @@ public class DeliveryActivity extends AppCompatActivity {
                 for (CartItemModel cartItemModel : cartItemModelList) {
                     if (cartItemModel.isQtyError()) {
                         allProductsAvailable = false;
+                        break;
+                    }
+                    if (cartItemModel.getType() == CartItemModel.CART_ITEM) {
+                        if (!cartItemModel.isCOD()) {
+                            cod.setEnabled(false);
+                            cod.setAlpha(0.5f);
+                            codTitle.setAlpha(0.5f);
+                            divider.setVisibility(View.GONE);
+                            break;
+                        } else {
+                            cod.setEnabled(true);
+                            cod.setAlpha(1f);
+                            codTitle.setAlpha(1f);
+                            divider.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
                 if (allProductsAvailable) {
@@ -455,69 +474,69 @@ public class DeliveryActivity extends AppCompatActivity {
         for (CartItemModel cartItemModel : cartItemModelList) {
             if (cartItemModel.getType() == CartItemModel.CART_ITEM) {
 
-                Map<String,Object> orderDetails = new HashMap<>();
-                orderDetails.put("ORDER ID",order_id);
-                orderDetails.put("PRODUCT Id",cartItemModel.getProductID());
-                orderDetails.put("Product Image",cartItemModel.getProductImage());
-                orderDetails.put("Product Title",cartItemModel.getProductTitle());
-                orderDetails.put("User Id",userID);
-                orderDetails.put("Product Quantity",cartItemModel.getProductQuantity());
-                if(cartItemModel.getCuttedPrice() != null) {
+                Map<String, Object> orderDetails = new HashMap<>();
+                orderDetails.put("ORDER ID", order_id);
+                orderDetails.put("PRODUCT Id", cartItemModel.getProductID());
+                orderDetails.put("Product Image", cartItemModel.getProductImage());
+                orderDetails.put("Product Title", cartItemModel.getProductTitle());
+                orderDetails.put("User Id", userID);
+                orderDetails.put("Product Quantity", cartItemModel.getProductQuantity());
+                if (cartItemModel.getCuttedPrice() != null) {
                     orderDetails.put("Cutted Price", cartItemModel.getCuttedPrice());
                 } else {
                     orderDetails.put("Cutted Price", "");
                 }
-                orderDetails.put("Product Price",cartItemModel.getProductPrice());
-                if(cartItemModel.getSelectedCouponId() != null) {
+                orderDetails.put("Product Price", cartItemModel.getProductPrice());
+                if (cartItemModel.getSelectedCouponId() != null) {
                     orderDetails.put("Coupon Id", cartItemModel.getSelectedCouponId());
                 } else {
                     orderDetails.put("Coupon Id", "");
                 }
-                if(cartItemModel.getDiscountedPrice() != null) {
+                if (cartItemModel.getDiscountedPrice() != null) {
                     orderDetails.put("Discounted Price", cartItemModel.getDiscountedPrice());
                 } else {
-                    orderDetails.put("Discounted Price","");
+                    orderDetails.put("Discounted Price", "");
                 }
-                orderDetails.put("Ordered Date",FieldValue.serverTimestamp());
-                orderDetails.put("Confirmation Date",FieldValue.serverTimestamp());
-                orderDetails.put("Cooked Date",FieldValue.serverTimestamp());
-                orderDetails.put("Completed Date",FieldValue.serverTimestamp());
-                orderDetails.put("Cancelled Date",FieldValue.serverTimestamp());
-                orderDetails.put("Order Status","Ordered");
-                orderDetails.put("Payment Method",paymentMethod);
-                orderDetails.put("Address",fullAddress.getText());
-                orderDetails.put("Fullname",fullName.getText());
-                orderDetails.put("Pincode",pincode.getText());
-                orderDetails.put("Free Coupons",cartItemModel.getFreeCoupons());
-                orderDetails.put("Delivery Price",cartItemModel.getDeliveryPrice());
+                orderDetails.put("Ordered Date", FieldValue.serverTimestamp());
+                orderDetails.put("Confirmation Date", FieldValue.serverTimestamp());
+                orderDetails.put("Cooked Date", FieldValue.serverTimestamp());
+                orderDetails.put("Completed Date", FieldValue.serverTimestamp());
+                orderDetails.put("Cancelled Date", FieldValue.serverTimestamp());
+                orderDetails.put("Order Status", "Ordered");
+                orderDetails.put("Payment Method", paymentMethod);
+                orderDetails.put("Address", fullAddress.getText());
+                orderDetails.put("Fullname", fullName.getText());
+                orderDetails.put("Pincode", pincode.getText());
+                orderDetails.put("Free Coupons", cartItemModel.getFreeCoupons());
+                orderDetails.put("Delivery Price", cartItemModel.getDeliveryPrice());
 
 
                 firebaseFirestore.collection("ORDERS").document(order_id).collection("OrderItems").document(cartItemModel.getProductID())
                         .set(orderDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if(!task.isSuccessful()){
+                        if (!task.isSuccessful()) {
                             String error = task.getException().getMessage();
-                            Toast.makeText(DeliveryActivity.this,error,Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             } else {
-                Map<String,Object> orderDetails = new HashMap<>();
-                orderDetails.put("Total Items",cartItemModel.getTotalItems());
-                orderDetails.put("Total Items Price",cartItemModel.getTotalItemPrice());
-                orderDetails.put("Delivery Price",cartItemModel.getDeliveryPrice());
-                orderDetails.put("Total Amount",cartItemModel.getTotalAmount());
-                orderDetails.put("Saved Amount",cartItemModel.getSavedAmount());
-                orderDetails.put("Payment Status","Not Paid");
-                orderDetails.put("Order Status","Cancelled");
+                Map<String, Object> orderDetails = new HashMap<>();
+                orderDetails.put("Total Items", cartItemModel.getTotalItems());
+                orderDetails.put("Total Items Price", cartItemModel.getTotalItemPrice());
+                orderDetails.put("Delivery Price", cartItemModel.getDeliveryPrice());
+                orderDetails.put("Total Amount", cartItemModel.getTotalAmount());
+                orderDetails.put("Saved Amount", cartItemModel.getSavedAmount());
+                orderDetails.put("Payment Status", "Not Paid");
+                orderDetails.put("Order Status", "Cancelled");
 
                 firebaseFirestore.collection("ORDERS").document(order_id)
                         .set(orderDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()){
-                            if(paymentMethod.equals("PAYTM")){
+                        if (task.isSuccessful()) {
+                            if (paymentMethod.equals("PAYTM")) {
                                 paytm();
                             } else {
                                 cod();
@@ -525,7 +544,7 @@ public class DeliveryActivity extends AppCompatActivity {
 
                         } else {
                             String error = task.getException().getMessage();
-                            Toast.makeText(DeliveryActivity.this,error,Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -534,142 +553,142 @@ public class DeliveryActivity extends AppCompatActivity {
 
     }
 
-    private void paytm(){
-            getQtyIDs = false;
-            paymentMethodDialog.dismiss();
-            loadingDialog.show();
-            if (ContextCompat.checkSelfPermission(DeliveryActivity.this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(DeliveryActivity.this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, 101);
-            }
+    private void paytm() {
+        getQtyIDs = false;
+        paymentMethodDialog.dismiss();
+        loadingDialog.show();
+        if (ContextCompat.checkSelfPermission(DeliveryActivity.this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(DeliveryActivity.this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, 101);
+        }
 
-            final String M_id = "vlNKMm27811914887649";
-            final String customer_id = FirebaseAuth.getInstance().getUid();
-            final String url = "https://wayworn-cause.000webhostapp.com/paytm/generateChecksum.php";
-            final String callBackUrl = "https://pguat.paytm.com/paytmchecksum/paytmCallback.jsp";
+        final String M_id = "vlNKMm27811914887649";
+        final String customer_id = FirebaseAuth.getInstance().getUid();
+        final String url = "https://wayworn-cause.000webhostapp.com/paytm/generateChecksum.php";
+        final String callBackUrl = "https://pguat.paytm.com/paytmchecksum/paytmCallback.jsp";
 
-            RequestQueue requestQueue = Volley.newRequestQueue(DeliveryActivity.this);
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        Toast.makeText(getApplicationContext(), "Reached", Toast.LENGTH_LONG).show();
-                        if (jsonObject.has("CHECKSUMHASH")) {
-                            String CHECKSUMHASH = jsonObject.getString("CHECKSUMHASH");
+        RequestQueue requestQueue = Volley.newRequestQueue(DeliveryActivity.this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    Toast.makeText(getApplicationContext(), "Reached", Toast.LENGTH_LONG).show();
+                    if (jsonObject.has("CHECKSUMHASH")) {
+                        String CHECKSUMHASH = jsonObject.getString("CHECKSUMHASH");
 
-                            PaytmPGService paytmPGService = PaytmPGService.getStagingService();
+                        PaytmPGService paytmPGService = PaytmPGService.getStagingService();
 
-                            HashMap<String, String> paramMap = new HashMap<>();
-                            paramMap.put("MID", M_id);
-                            paramMap.put("ORDER_ID", order_id);
-                            paramMap.put("CUST_ID", customer_id);
-                            paramMap.put("CHANNEL_ID", "WAP");
-                            paramMap.put("TXN_AMOUNT", totalAmount.getText().toString().substring(3, totalAmount.getText().length() - 2));
-                            paramMap.put("WEBSITE", "WEBSTAGING");
-                            paramMap.put("INDUSTRY_TYPE_ID", "Retail");
-                            paramMap.put("CALLBACK_URL", callBackUrl);
-                            paramMap.put("CHECKSUMHASH", CHECKSUMHASH);
+                        HashMap<String, String> paramMap = new HashMap<>();
+                        paramMap.put("MID", M_id);
+                        paramMap.put("ORDER_ID", order_id);
+                        paramMap.put("CUST_ID", customer_id);
+                        paramMap.put("CHANNEL_ID", "WAP");
+                        paramMap.put("TXN_AMOUNT", totalAmount.getText().toString().substring(3, totalAmount.getText().length() - 2));
+                        paramMap.put("WEBSITE", "WEBSTAGING");
+                        paramMap.put("INDUSTRY_TYPE_ID", "Retail");
+                        paramMap.put("CALLBACK_URL", callBackUrl);
+                        paramMap.put("CHECKSUMHASH", CHECKSUMHASH);
 
-                            PaytmOrder order = new PaytmOrder(paramMap);
-                            paytmPGService.initialize(order, null);
+                        PaytmOrder order = new PaytmOrder(paramMap);
+                        paytmPGService.initialize(order, null);
 
-                            paytmPGService.startPaymentTransaction(DeliveryActivity.this, true, true, new PaytmPaymentTransactionCallback() {
-                                @Override
-                                public void onTransactionResponse(Bundle inResponse) {
-                                    //Toast.makeText(getApplicationContext(),"Payment Transaction response "+ inResponse.toString(), Toast.LENGTH_LONG).show();
+                        paytmPGService.startPaymentTransaction(DeliveryActivity.this, true, true, new PaytmPaymentTransactionCallback() {
+                            @Override
+                            public void onTransactionResponse(Bundle inResponse) {
+                                //Toast.makeText(getApplicationContext(),"Payment Transaction response "+ inResponse.toString(), Toast.LENGTH_LONG).show();
 
-                                    if (inResponse.getString("STATUS").equals("TXN_SUCCESS")) {
-                                            Map<String, Object>  updatestatus = new HashMap<>();
-                                            updatestatus.put("Payment Status","Paid");
-                                            updatestatus.put("Order Status","Ordered");
-                                            firebaseFirestore.collection("ORDERS").document(order_id).update(updatestatus)
-                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if(task.isSuccessful()){
-                                                                Map<String,Object> userOrder = new HashMap<>();
-                                                                userOrder.put("order_id",order_id);
-                                                                firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_ORDERS").document(order_id).set(userOrder)
-                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                            @Override
-                                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                                if(task.isSuccessful()){
-                                                                                    showConfirmationLayout();
-                                                                                } else {
-                                                                                    Toast.makeText(DeliveryActivity.this,"Failed to update user order list",Toast.LENGTH_LONG).show();
-                                                                                }
-                                                                            }
-                                                                        });
-                                                            } else {
-                                                                Toast.makeText(DeliveryActivity.this,"Order CANCELLED",Toast.LENGTH_LONG).show();
-                                                            }
-                                                        }
-                                                    });
-                                    }
+                                if (inResponse.getString("STATUS").equals("TXN_SUCCESS")) {
+                                    Map<String, Object> updatestatus = new HashMap<>();
+                                    updatestatus.put("Payment Status", "Paid");
+                                    updatestatus.put("Order Status", "Ordered");
+                                    firebaseFirestore.collection("ORDERS").document(order_id).update(updatestatus)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Map<String, Object> userOrder = new HashMap<>();
+                                                        userOrder.put("order_id", order_id);
+                                                        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_ORDERS").document(order_id).set(userOrder)
+                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            showConfirmationLayout();
+                                                                        } else {
+                                                                            Toast.makeText(DeliveryActivity.this, "Failed to update user order list", Toast.LENGTH_LONG).show();
+                                                                        }
+                                                                    }
+                                                                });
+                                                    } else {
+                                                        Toast.makeText(DeliveryActivity.this, "Order CANCELLED", Toast.LENGTH_LONG).show();
+                                                    }
+                                                }
+                                            });
                                 }
+                            }
 
-                                @Override
-                                public void networkNotAvailable() {
-                                    Toast.makeText(getApplicationContext(), "Network Connection error: Check your internet connectivity", Toast.LENGTH_LONG).show();
-                                }
+                            @Override
+                            public void networkNotAvailable() {
+                                Toast.makeText(getApplicationContext(), "Network Connection error: Check your internet connectivity", Toast.LENGTH_LONG).show();
+                            }
 
-                                @Override
-                                public void clientAuthenticationFailed(String inErrorMessage) {
-                                    Toast.makeText(getApplicationContext(), "Authentication failed: Server error" + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
-                                }
+                            @Override
+                            public void clientAuthenticationFailed(String inErrorMessage) {
+                                Toast.makeText(getApplicationContext(), "Authentication failed: Server error" + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
+                            }
 
-                                @Override
-                                public void someUIErrorOccurred(String inErrorMessage) {
-                                    Toast.makeText(getApplicationContext(), "UI Error " + inErrorMessage, Toast.LENGTH_LONG).show();
-                                }
+                            @Override
+                            public void someUIErrorOccurred(String inErrorMessage) {
+                                Toast.makeText(getApplicationContext(), "UI Error " + inErrorMessage, Toast.LENGTH_LONG).show();
+                            }
 
-                                @Override
-                                public void onErrorLoadingWebPage(int iniErrorCode, String inErrorMessage, String inFailingUrl) {
-                                    Toast.makeText(getApplicationContext(), "Unable to load webpage " + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
-                                }
+                            @Override
+                            public void onErrorLoadingWebPage(int iniErrorCode, String inErrorMessage, String inFailingUrl) {
+                                Toast.makeText(getApplicationContext(), "Unable to load webpage " + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
+                            }
 
-                                @Override
-                                public void onBackPressedCancelTransaction() {
-                                    Toast.makeText(getApplicationContext(), "Transaction cancelled", Toast.LENGTH_LONG).show();
-                                }
+                            @Override
+                            public void onBackPressedCancelTransaction() {
+                                Toast.makeText(getApplicationContext(), "Transaction cancelled", Toast.LENGTH_LONG).show();
+                            }
 
-                                @Override
-                                public void onTransactionCancel(String inErrorMessage, Bundle inResponse) {
-                                    Toast.makeText(getApplicationContext(), "Transaction cancelled" + inResponse.toString(), Toast.LENGTH_LONG).show();
-                                }
-                            });
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                            @Override
+                            public void onTransactionCancel(String inErrorMessage, Bundle inResponse) {
+                                Toast.makeText(getApplicationContext(), "Transaction cancelled" + inResponse.toString(), Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    loadingDialog.dismiss();
-                    Toast.makeText(DeliveryActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
-                }
-            }) {
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> paramMap = new HashMap<String, String>();
-                    paramMap.put("MID", M_id);
-                    paramMap.put("ORDER_ID", order_id);
-                    paramMap.put("CUST_ID", customer_id);
-                    paramMap.put("CHANNEL_ID", "WAP");
-                    paramMap.put("TXN_AMOUNT", totalAmount.getText().toString().substring(3, totalAmount.getText().length() - 2));
-                    paramMap.put("WEBSITE", "WEBSTAGING");
-                    paramMap.put("INDUSTRY_TYPE_ID", "Retail");
-                    paramMap.put("CALLBACK_URL", callBackUrl);
-                    return paramMap;
-                }
-            };
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                loadingDialog.dismiss();
+                Toast.makeText(DeliveryActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> paramMap = new HashMap<String, String>();
+                paramMap.put("MID", M_id);
+                paramMap.put("ORDER_ID", order_id);
+                paramMap.put("CUST_ID", customer_id);
+                paramMap.put("CHANNEL_ID", "WAP");
+                paramMap.put("TXN_AMOUNT", totalAmount.getText().toString().substring(3, totalAmount.getText().length() - 2));
+                paramMap.put("WEBSITE", "WEBSTAGING");
+                paramMap.put("INDUSTRY_TYPE_ID", "Retail");
+                paramMap.put("CALLBACK_URL", callBackUrl);
+                return paramMap;
+            }
+        };
 
-            requestQueue.add(stringRequest);
+        requestQueue.add(stringRequest);
 
     }
 
-    private void cod(){
+    private void cod() {
         getQtyIDs = false;
         paymentMethodDialog.dismiss();
         Intent otpIntent = new Intent(DeliveryActivity.this, OTPverificationActivity.class);

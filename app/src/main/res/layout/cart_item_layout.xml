@@ -183,4 +183,17 @@
             android:drawablePadding="4dp"
             android:drawableStart="@drawable/bin"/>
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/cod_indicator"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_free_coupon"
+        app:layout_constraintStart_toEndOf="@+id/tv_free_coupon"
+        app:layout_constraintTop_toTopOf="@+id/tv_free_coupon"
+        app:srcCompat="@drawable/cod_indicator" />
 </androidx.constraintlayout.widget.ConstraintLayout>

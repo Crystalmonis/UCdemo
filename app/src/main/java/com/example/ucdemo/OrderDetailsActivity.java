@@ -5,11 +5,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.Dialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,6 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +49,8 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TextView fullName,address,pincode;
     private TextView totalItems,totalItemsPrice,deliveryPrice,totalAmount,savedAmount;
     private Button changeOrAddAddressesBtn;
+    private Dialog loadingDialog;
+    private SimpleDateFormat simpleDateFormat;
 
 
     @Override
@@ -56,6 +62,14 @@ public class OrderDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setTitle("Order details");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //////////////Loading dialog
+        loadingDialog = new Dialog(OrderDetailsActivity.this);
+        loadingDialog.setContentView(R.layout.loading_progress_dialog);
+        loadingDialog.setCancelable(false);
+        loadingDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        loadingDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.slider_background));
+        //////////////Loading dialog
 
         position = getIntent().getIntExtra("Position", -1);
         MyOrderItemModel model = DBqueries.myOrderItemModelList.get(position);
@@ -112,10 +126,11 @@ public class OrderDetailsActivity extends AppCompatActivity {
         quantity.setText("Qty : " + String.valueOf(model.getProductQuantity()));
         Glide.with(this).load(model.getProductImage()).into(productImage);
 
+        simpleDateFormat = new SimpleDateFormat("EEE, dd MMM YYYY hh:mm aa");
         switch (model.getOrderStatus()) {
             case "Ordered":
                 orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                orderedDate.setText(String.valueOf(model.getOrderedDate()));
+                orderedDate.setText(String.valueOf(simpleDateFormat.format(model.getOrderedDate())));
 
                 order_confirm_progress.setVisibility(View.GONE);
                 confirm_cook_progress.setVisibility(View.GONE);
@@ -140,10 +155,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 break;
             case "Confirmed":
                 orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                orderedDate.setText(String.valueOf(model.getOrderedDate()));
+                orderedDate.setText(String.valueOf(simpleDateFormat.format(model.getOrderedDate())));
 
                 confirmedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                confirmedDate.setText(String.valueOf(model.getConfirmedDate()));
+                confirmedDate.setText(String.valueOf(simpleDateFormat.format(model.getConfirmedDate())));
 
                 order_confirm_progress.setProgress(100);
 
@@ -165,13 +180,13 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 break;
             case "Cooked":
                 orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                orderedDate.setText(String.valueOf(model.getOrderedDate()));
+                orderedDate.setText(String.valueOf(simpleDateFormat.format(model.getOrderedDate())));
 
                 confirmedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                confirmedDate.setText(String.valueOf(model.getConfirmedDate()));
+                confirmedDate.setText(String.valueOf(simpleDateFormat.format(model.getConfirmedDate())));
 
                 cookedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                cookedDate.setText(String.valueOf(model.getCookedDate()));
+                cookedDate.setText(String.valueOf(simpleDateFormat.format(model.getCookedDate())));
 
                 order_confirm_progress.setProgress(100);
                 confirm_cook_progress.setProgress(100);
@@ -189,16 +204,16 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 break;
             case "Completed":
                 orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                orderedDate.setText(String.valueOf(model.getOrderedDate()));
+                orderedDate.setText(String.valueOf(simpleDateFormat.format(model.getOrderedDate())));
 
                 confirmedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                confirmedDate.setText(String.valueOf(model.getConfirmedDate()));
+                confirmedDate.setText(String.valueOf(simpleDateFormat.format(model.getConfirmedDate())));
 
                 cookedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                cookedDate.setText(String.valueOf(model.getCookedDate()));
+                cookedDate.setText(String.valueOf(simpleDateFormat.format(model.getCookedDate())));
 
                 deliveredIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                deliveredDate.setText(String.valueOf(model.getCompletedDate()));
+                deliveredDate.setText(String.valueOf(simpleDateFormat.format(model.getCompletedDate())));
 
                 order_confirm_progress.setProgress(100);
                 confirm_cook_progress.setProgress(100);
@@ -214,16 +229,16 @@ public class OrderDetailsActivity extends AppCompatActivity {
                     if(model.getCookedDate().after(model.getConfirmedDate())){
 
                         orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                        orderedDate.setText(String.valueOf(model.getOrderedDate()));
+                        orderedDate.setText(String.valueOf(simpleDateFormat.format(model.getOrderedDate())));
 
                         confirmedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                        confirmedDate.setText(String.valueOf(model.getConfirmedDate()));
+                        confirmedDate.setText(String.valueOf(simpleDateFormat.format(model.getConfirmedDate())));
 
                         cookedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                        cookedDate.setText(String.valueOf(model.getCookedDate()));
+                        cookedDate.setText(String.valueOf(simpleDateFormat.format(model.getCookedDate())));
 
                         deliveredIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.red)));
-                        deliveredDate.setText(String.valueOf(model.getCancelledDate()));
+                        deliveredDate.setText(String.valueOf(simpleDateFormat.format(model.getCancelledDate())));
                         deliveredTitle.setText("Cancelled");
                         deliveredBody.setText("Your booking has been cancelled");
 
@@ -235,13 +250,13 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
                     } else {
                         orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                        orderedDate.setText(String.valueOf(model.getOrderedDate()));
+                        orderedDate.setText(String.valueOf(simpleDateFormat.format(model.getOrderedDate())));
 
                         confirmedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                        confirmedDate.setText(String.valueOf(model.getConfirmedDate()));
+                        confirmedDate.setText(String.valueOf(simpleDateFormat.format(model.getConfirmedDate())));
 
                         cookedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.red)));
-                        cookedDate.setText(String.valueOf(model.getCancelledDate()));
+                        cookedDate.setText(String.valueOf(simpleDateFormat.format(model.getCancelledDate())));
                         cookedTitle.setText("Cancelled");
                         cookedBody.setText("Your booking has been cancelled");
 
@@ -261,10 +276,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
                 } else {
                     orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
-                    orderedDate.setText(String.valueOf(model.getOrderedDate()));
+                    orderedDate.setText(String.valueOf(simpleDateFormat.format(model.getOrderedDate())));
 
                     confirmedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.red)));
-                    confirmedDate.setText(String.valueOf(model.getCancelledDate()));
+                    confirmedDate.setText(String.valueOf(simpleDateFormat.format(model.getCancelledDate())));
                     confirmedTitle.setText("Cancelled");
                     confirmedBody.setText("Your booking has been cancelled");
 
@@ -298,6 +313,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
             rateNowContainer.getChildAt(x).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    loadingDialog.show();
                     setRating(starPosition);
                     DocumentReference documentReference = FirebaseFirestore.getInstance().collection("PRODUCTS").document("Z4BAs5R2DaEqkfabbXpS");
                     FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<Object>() {
@@ -347,8 +363,14 @@ public class OrderDetailsActivity extends AppCompatActivity {
                                         String error = task.getException().getMessage();
                                         Toast.makeText(OrderDetailsActivity.this,error,Toast.LENGTH_SHORT).show();
                                     }
+                                    loadingDialog.dismiss();
                                 }
                             });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            loadingDialog.dismiss();
                         }
                     });
                 }

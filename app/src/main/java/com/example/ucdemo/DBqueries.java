@@ -359,7 +359,9 @@ public class DBqueries {
                                                                     }
 
                                                                     if (task.getResult().getDocuments().size() < (long) documentSnapshot.get("stock_quantity")) {
-                                                                        cartItemModelList.add(index, new CartItemModel(CartItemModel.CART_ITEM
+                                                                        cartItemModelList.add(index, new CartItemModel(
+                                                                                documentSnapshot.getBoolean("COD")
+                                                                                ,CartItemModel.CART_ITEM
                                                                                 , productId
                                                                                 , documentSnapshot.get("product_image_1").toString()
                                                                                 , documentSnapshot.get("product_title").toString()
@@ -374,7 +376,9 @@ public class DBqueries {
                                                                                 , (long) documentSnapshot.get("stock_quantity")
                                                                         ));
                                                                     } else {
-                                                                        cartItemModelList.add(index, new CartItemModel(CartItemModel.CART_ITEM
+                                                                        cartItemModelList.add(index, new CartItemModel(
+                                                                                documentSnapshot.getBoolean("COD")
+                                                                                ,CartItemModel.CART_ITEM
                                                                                 , productId
                                                                                 , documentSnapshot.get("product_image_1").toString()
                                                                                 , documentSnapshot.get("product_title").toString()
@@ -566,7 +570,7 @@ public class DBqueries {
 
     }
 
-    public static void loadOrders(final Context context, MyOrderAdapter myOrderAdapter){
+    public static void loadOrders(final Context context, MyOrderAdapter myOrderAdapter, Dialog loadingDialog){
         myOrderItemModelList.clear();
         firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_ORDERS").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -592,10 +596,12 @@ public class DBqueries {
                                                     String error = task.getException().getMessage();
                                                     Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                                                 }
+                                                loadingDialog.dismiss();
                                             }
                                         });
                             }
                         } else {
+                            loadingDialog.dismiss();
                             String error = task.getException().getMessage();
                             Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                         }
