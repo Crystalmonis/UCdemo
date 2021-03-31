@@ -30,6 +30,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -49,8 +50,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TextView fullName,address,pincode;
     private TextView totalItems,totalItemsPrice,deliveryPrice,totalAmount,savedAmount;
     private Button changeOrAddAddressesBtn;
-    private Dialog loadingDialog;
+    private Dialog loadingDialog,cancelDialog;
     private SimpleDateFormat simpleDateFormat;
+    private Button cancelOrderBtn;
 
 
     @Override
@@ -63,12 +65,20 @@ public class OrderDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Order details");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //////////////Loading dialog
+        //////////////Cancel dialog
         loadingDialog = new Dialog(OrderDetailsActivity.this);
         loadingDialog.setContentView(R.layout.loading_progress_dialog);
         loadingDialog.setCancelable(false);
         loadingDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         loadingDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.slider_background));
+        //////////////Cancel dialog
+
+        //////////////Loading dialog
+        cancelDialog = new Dialog(OrderDetailsActivity.this);
+        cancelDialog.setContentView(R.layout.order_cancel_dialog);
+        cancelDialog.setCancelable(true);
+        //cancelDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        cancelDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.slider_background));
         //////////////Loading dialog
 
         position = getIntent().getIntExtra("Position", -1);
@@ -79,6 +89,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         quantity = findViewById(R.id.product_quantity_in_order_details);
 
         productImage = findViewById(R.id.product_image_in_order_details);
+        cancelOrderBtn = findViewById(R.id.cancel_order_btn);
 
         orderedIndicator = findViewById(R.id.ordered_indicator);
         confirmedIndicator = findViewById(R.id.confirmed_indicator);
@@ -377,6 +388,70 @@ public class OrderDetailsActivity extends AppCompatActivity {
             });
         }
         //////////Rating Layout
+
+        if(model.isCancellationRequested()){
+            cancelOrderBtn.setVisibility(View.VISIBLE);
+            cancelOrderBtn.setEnabled(false);
+            cancelOrderBtn.setText("Cancellation in process.");
+            cancelOrderBtn.setTextColor(getResources().getColor(R.color.user_theme));
+            cancelOrderBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+        } else {
+            if(model.getOrderStatus().equals("Ordered") || model.getOrderStatus().equals("Confirmed")){
+                cancelOrderBtn.setVisibility(View.VISIBLE);
+                cancelOrderBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cancelDialog.findViewById(R.id.no_btn).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                cancelDialog.dismiss();
+                            }
+                        });
+                        cancelDialog.findViewById(R.id.yes_btn).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                cancelDialog.dismiss();
+                                loadingDialog.show();
+                                Map<String,Object> map = new HashMap<>();
+                                map.put("Order Id",model.getOrderID());
+                                map.put("product Id",model.getProductId());
+                                map.put("Order Cancelled",false);
+                                FirebaseFirestore.getInstance().collection("CANCELLED ORDERS").document().set(map)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if(task.isSuccessful()){
+                                                    FirebaseFirestore.getInstance().collection("ORDERS").document(model.getOrderID()).collection("OrderItems").document("Z4BAs5R2DaEqkfabbXpS").update("Cancellation requested",true)
+                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                    if(task.isSuccessful()){
+                                                                        model.setCancellationRequested(true);
+                                                                        cancelOrderBtn.setEnabled(false);
+                                                                        cancelOrderBtn.setText("Cancellation in process.");
+                                                                        cancelOrderBtn.setTextColor(getResources().getColor(R.color.user_theme));
+                                                                        cancelOrderBtn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                                                                    } else {
+                                                                        String error = task.getException().getMessage();
+                                                                        Toast.makeText(OrderDetailsActivity.this,error,Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                    loadingDialog.dismiss();
+                                                                }
+                                                            });
+                                                } else {
+                                                    loadingDialog.dismiss();
+                                                    String error = task.getException().getMessage();
+                                                    Toast.makeText(OrderDetailsActivity.this,error,Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+                            }
+                        });
+                        cancelDialog.show();
+                    }
+                });
+            }
+        }
 
         fullName.setText(model.getFullName());
         address.setText(model.getAddress());

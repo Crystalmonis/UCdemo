@@ -32,6 +32,7 @@ public class MyOrdersFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_my_orders, container, false);
+        myOrdersRecyclerView=view.findViewById(R.id.my_orders_recycler_view);
 
         //////////////Loading dialog
         loadingDialog = new Dialog(getContext());

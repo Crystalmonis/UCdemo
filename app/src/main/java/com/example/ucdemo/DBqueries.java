@@ -570,28 +570,31 @@ public class DBqueries {
 
     }
 
-    public static void loadOrders(final Context context, MyOrderAdapter myOrderAdapter, Dialog loadingDialog){
+    public static void loadOrders(final Context context, final MyOrderAdapter myOrderAdapter, Dialog loadingDialog){
         myOrderItemModelList.clear();
-        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_ORDERS").get()
+        firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_ORDERS").orderBy("time", Query.Direction.DESCENDING).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()){
                             for(DocumentSnapshot documentSnapshot : task.getResult().getDocuments()){
 
-                                firebaseFirestore.collection("ORDERS").document(documentSnapshot.getString("order_id")).collection("OrderItems").get()
+                                firebaseFirestore.collection("ORDERS").document(documentSnapshot.getString("order_id"))
+                                        .collection("OrderItems").get()
                                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if(task.isSuccessful()){
                                                     for(DocumentSnapshot orderItems : task.getResult().getDocuments()){
 
-                                                        MyOrderItemModel myOrderItemModel = new MyOrderItemModel(orderItems.getString("Product Id"),orderItems.getString("Order Status"),orderItems.getString("Address"),orderItems.getString("Coupon Id"),orderItems.getString("Cutted Price"),orderItems.getDate("Ordered Date"),orderItems.getDate("Confirmation Date"),orderItems.getDate("Cooked Date"),orderItems.getDate("Completed Date"),orderItems.getDate("Cancelled Date"),orderItems.getString("Discounted Price"),orderItems.getLong("Free Coupons"),orderItems.getString("Fullname"),orderItems.getString("ORDER ID"),orderItems.getString("Payment Method"),orderItems.getString("Pincode"),orderItems.getString("Product Price"),orderItems.getLong("Product Quantity"),orderItems.getString("User Id"),orderItems.getString("Product Image"),orderItems.getString("Product Title"),orderItems.getString("Delivery Price"));
+                                                        MyOrderItemModel myOrderItemModel = new MyOrderItemModel(orderItems.getString("Product Id"),orderItems.getString("Order Status"),orderItems.getString("Address"),orderItems.getString("Coupon Id"),orderItems.getString("Cutted Price"),orderItems.getDate("Ordered Date"),orderItems.getDate("Confirmation Date"),orderItems.getDate("Cooked Date"),orderItems.getDate("Completed Date"),orderItems.getDate("Cancelled Date"),orderItems.getString("Discounted Price"),orderItems.getLong("Free Coupons"),orderItems.getString("Fullname"),orderItems.getString("ORDER ID"),orderItems.getString("Payment Method"),orderItems.getString("Pincode"),orderItems.getString("Product Price"),orderItems.getLong("Product Quantity"),orderItems.getString("User Id"),orderItems.getString("Product Image"),orderItems.getString("Product Title"),orderItems.getString("Delivery Price"),orderItems.getBoolean("Cancellation requested"));
                                                         myOrderItemModelList.add(myOrderItemModel);
 
                                                     }
                                                     loadRatingList(context);
-                                                    myOrderAdapter.notifyDataSetChanged();
+                                                    if (myOrderAdapter != null) {
+                                                        myOrderAdapter.notifyDataSetChanged();
+                                                    }
                                                 } else {
                                                     String error = task.getException().getMessage();
                                                     Toast.makeText(context, error, Toast.LENGTH_SHORT).show();

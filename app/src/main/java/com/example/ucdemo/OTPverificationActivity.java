@@ -21,6 +21,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -70,6 +71,7 @@ public class OTPverificationActivity extends AppCompatActivity {
                                             if (task.isSuccessful()) {
                                                 Map<String, Object> userOrder = new HashMap<>();
                                                 userOrder.put("order_id", OrderID);
+                                                userOrder.put("time", FieldValue.serverTimestamp());
                                                 FirebaseFirestore.getInstance().collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_ORDERS").document(OrderID).set(userOrder)
                                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                             @Override

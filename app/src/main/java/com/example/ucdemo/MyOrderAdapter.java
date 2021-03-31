@@ -115,7 +115,7 @@ public class MyOrderAdapter extends RecyclerView.Adapter<MyOrderAdapter.Viewhold
             } else {
                 orderIndicator.setImageTintList(ColorStateList.valueOf(itemView.getContext().getResources().getColor(R.color.successGreen)));
             }
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM YYYY hh:mm aa");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(" EEE, dd MMM YYYY hh:mm aa");
 
             deliveryStatus.setText(orderStatus + String.valueOf(simpleDateFormat.format(date)));
 
