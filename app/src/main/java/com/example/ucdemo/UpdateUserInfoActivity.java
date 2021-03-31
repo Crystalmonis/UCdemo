@@ -16,7 +16,7 @@ public class UpdateUserInfoActivity extends AppCompatActivity {
     private FrameLayout frameLayout;
     private UpdateInfoFragment updateInfoFragment;
     private UpdatePasswordFragment updatePasswordFragment;
-    private String name,email,photo;
+    private String name, email, photo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +37,11 @@ public class UpdateUserInfoActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                if(tab.getPosition() == 0){
-                    setFragment(updateInfoFragment,true);
+                if (tab.getPosition() == 0) {
+                    setFragment(updateInfoFragment, true);
                 }
-                if(tab.getPosition() == 1){
-                    setFragment(updatePasswordFragment,false);
+                if (tab.getPosition() == 1) {
+                    setFragment(updatePasswordFragment, false);
                 }
             }
 
@@ -57,21 +57,25 @@ public class UpdateUserInfoActivity extends AppCompatActivity {
         });
 
         tabLayout.getTabAt(0).select();
-        setFragment(updateInfoFragment,true);
+        setFragment(updateInfoFragment, true);
 
 
     }
 
-    private void setFragment(Fragment fragment,boolean setBundle){
+    private void setFragment(Fragment fragment, boolean setBundle) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        if(setBundle) {
+        if (setBundle) {
             Bundle bundle = new Bundle();
             bundle.putString("Name", name);
             bundle.putString("Email", email);
             bundle.putString("Photo", photo);
             fragment.setArguments(bundle);
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putString("Email", email);
+            fragment.setArguments(bundle);
         }
-        fragmentTransaction.replace(frameLayout.getId(),fragment);
+        fragmentTransaction.replace(frameLayout.getId(), fragment);
         fragmentTransaction.commit();
     }
 }
