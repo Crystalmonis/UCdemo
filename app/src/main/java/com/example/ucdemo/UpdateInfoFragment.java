@@ -346,11 +346,12 @@ public class UpdateInfoFragment extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
                             if(userdata.size() > 1){
-                                DBqueries.fullname = nameField.getText().toString().trim();
                                 DBqueries.email = emailField.getText().toString().trim();
+                                DBqueries.fullname = nameField.getText().toString().trim();
                             } else {
                                 DBqueries.fullname = nameField.getText().toString().trim();
                             }
+                            getActivity().finish();
                             Toast.makeText(getContext(),"Successfully Updated!",Toast.LENGTH_SHORT).show();
                         } else {
                             String error = task.getException().getMessage();

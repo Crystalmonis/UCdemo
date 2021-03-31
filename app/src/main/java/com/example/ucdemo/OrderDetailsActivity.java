@@ -443,7 +443,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if(task.isSuccessful()){
-                                                    FirebaseFirestore.getInstance().collection("ORDERS").document(model.getOrderID()).collection("ORDER_ITEMS").document(model.getProductId()).update("Cancellation requested",true)
+                                                    FirebaseFirestore.getInstance().collection("ORDERS").document(model.getOrderID()).collection("OrderItems").document(model.getProductId()).update("Cancellation requested",true)
                                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                 @Override
                                                                 public void onComplete(@NonNull Task<Void> task) {
