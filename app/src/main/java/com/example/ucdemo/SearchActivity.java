@@ -48,6 +48,7 @@ public class SearchActivity extends AppCompatActivity {
         final List<String> ids = new ArrayList<>();
 
         adapter = adapter=new Adapter(list,false);
+        adapter.setFromSearch(true);
         recyclerView.setAdapter(adapter);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -78,6 +79,8 @@ public class SearchActivity extends AppCompatActivity {
                                                     , (boolean) documentSnapshot.get("COD")
                                                     , true
                                             );
+
+                                            model.setTags((ArrayList<String>) documentSnapshot.get("tags"));
 
                                             if(!ids.contains(model.getProductId())){
                                                 list.add(model);
@@ -116,25 +119,51 @@ public class SearchActivity extends AppCompatActivity {
 
     class Adapter extends WishlistAdapter implements Filterable{
 
-
+        private List<WishlistModel> originalList;
         public Adapter(List<WishlistModel> wishlistModelList, Boolean wishlist) {
             super(wishlistModelList, wishlist);
+            originalList=wishlistModelList;
         }
 
         @Override
         public Filter getFilter() {
             return new Filter() {
                 @Override
-                protected FilterResults performFiltering(CharSequence constraint) {
+                protected FilterResults performFiltering(CharSequence charSequence) {
+                    FilterResults filterResults = new FilterResults();
+                    List<WishlistModel> filteredList = new ArrayList<>();
+                    final String[] tags = charSequence.toString().toLowerCase().split(" ");
 
-                    //////////Filter Logic
+                    for (WishlistModel model : originalList) {
+                        ArrayList<String> presentTags = new ArrayList<>();
+                        for (String tag : tags) {
+                            if (model.getTags().contains(tag)) {
+                                presentTags.add(tag);
+                            }
+                        }
+                        model.setTags(presentTags);
+                    }
+                    for (int i = tags.length; i > 0; i--) {
+                        for (WishlistModel model : originalList) {
+                            if (model.getTags().size() == i) {
+                                filteredList.add(model);
+                            }
+                        }
+                    }
+                    filterResults.values = filteredList;
+                    filterResults.count = filteredList.size();
 
 
-                    return null;
+                    return filterResults;
                 }
 
                 @Override
-                protected void publishResults(CharSequence constraint, FilterResults results) {
+                protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+
+                    if (filterResults.count > 0) {
+                        setWishlistModelList((List<WishlistModel>) filterResults.values);
+                    }
+
                     notifyDataSetChanged();
                 }
             };

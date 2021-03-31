@@ -45,6 +45,14 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
         this.wishlist = wishlist;
     }
 
+    public List<WishlistModel> getWishlistModelList() {
+        return wishlistModelList;
+    }
+
+    public void setWishlistModelList(List<WishlistModel> wishlistModelList) {
+        this.wishlistModelList = wishlistModelList;
+    }
+
     @NonNull
     @Override
     public WishlistAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
