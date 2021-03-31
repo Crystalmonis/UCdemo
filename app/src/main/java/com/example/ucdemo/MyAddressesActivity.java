@@ -116,7 +116,7 @@ public class MyAddressesActivity extends AppCompatActivity {
             }
         });
 
-        addressesAdapter = new AddressesAdapter(DBqueries.addressesModelList, mode,loadingDialog);
+        addressesAdapter = new AddressesAdapter(DBqueries.addressesModelList, mode, loadingDialog);
         myAddressesRecyclerView.setAdapter(addressesAdapter);
         ((SimpleItemAnimator) myAddressesRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         addressesAdapter.notifyDataSetChanged();
@@ -125,7 +125,11 @@ public class MyAddressesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent addAddressIntent = new Intent(MyAddressesActivity.this, AddAddressActivity.class);
-                addAddressIntent.putExtra("INTENT", "null");
+                if (mode != SELECT_ADDRESS) {
+                    addAddressIntent.putExtra("INTENT", "manage");
+                } else {
+                    addAddressIntent.putExtra("INTENT", "null");
+                }
                 startActivity(addAddressIntent);
             }
         });
@@ -145,7 +149,7 @@ public class MyAddressesActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            if(mode == SELECT_ADDRESS) {
+            if (mode == SELECT_ADDRESS) {
                 if (DBqueries.selectedaddress != previousAddress) {
                     DBqueries.addressesModelList.get(DBqueries.selectedaddress).setSelected(false);
                     DBqueries.addressesModelList.get(previousAddress).setSelected(true);
@@ -160,7 +164,7 @@ public class MyAddressesActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(mode == SELECT_ADDRESS) {
+        if (mode == SELECT_ADDRESS) {
             if (DBqueries.selectedaddress != previousAddress) {
                 DBqueries.addressesModelList.get(DBqueries.selectedaddress).setSelected(false);
                 DBqueries.addressesModelList.get(previousAddress).setSelected(true);

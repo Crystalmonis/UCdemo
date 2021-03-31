@@ -193,8 +193,13 @@ public class MyAccountFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if(!loadingDialog.isShowing()){
-            setAddress();
-        }
+            if(DBqueries.addressesModelList.size() == 0){
+                addressName.setText("No Address");
+                address.setText("-");
+                pincode.setText("-");
+            } else {
+                setAddress();
+            }        }
     }
 
     private void setAddress() {

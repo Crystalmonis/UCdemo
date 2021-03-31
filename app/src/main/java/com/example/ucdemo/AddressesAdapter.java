@@ -192,7 +192,7 @@ public class AddressesAdapter extends RecyclerView.Adapter<AddressesAdapter.View
 
                         int finalSelected = selected;
                         FirebaseFirestore.getInstance().collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_DATA").document("MY_ADDRESSES")
-                                .update(addresses).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                .set(addresses).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {

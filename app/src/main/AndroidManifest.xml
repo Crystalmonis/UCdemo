@@ -16,7 +16,8 @@
         android:roundIcon="@drawable/ucicon"
         android:supportsRtl="true"
         android:theme="@style/Theme.UCdemo">
-        <activity android:name=".OTPverificationActivity"></activity>
+        <activity android:name=".UpdateUserInfoActivity"></activity>
+        <activity android:name=".OTPverificationActivity" />
         <activity android:name=".ViewAllActivity" />
         <activity android:name=".MyAddressesActivity" />
         <activity
