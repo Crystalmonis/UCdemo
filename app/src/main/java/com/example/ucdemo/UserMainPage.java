@@ -214,6 +214,7 @@ public class UserMainPage extends AppCompatActivity {
         if (currentUser == null) {
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
         } else {
+            DBqueries.checkNotifications(false);
             if (DBqueries.email == null) {
                 FirebaseFirestore.getInstance().collection("USERS").document(currentUser.getUid())
                         .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -259,6 +260,12 @@ public class UserMainPage extends AppCompatActivity {
             navigationView.getMenu().getItem(0).setChecked(true);
         }
         invalidateOptionsMenu();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        DBqueries.checkNotifications(true);
     }
 
     @Override
@@ -337,6 +344,8 @@ public class UserMainPage extends AppCompatActivity {
             startActivity(searchIntent);
             return true;
         } else if (id == R.id.main_notification_icon) {
+            Intent notificationIntent = new Intent(this,NotificationActivity.class);
+            startActivity(notificationIntent);
             return true;
         } else if (id == R.id.main_cart_icon) {
             if (currentUser == null) {
