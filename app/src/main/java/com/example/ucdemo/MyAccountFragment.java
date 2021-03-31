@@ -85,12 +85,14 @@ public class MyAccountFragment extends Fragment {
             Glide.with(getContext()).load(DBqueries.profile).apply(new RequestOptions().placeholder(R.drawable.my_account)).into(profileView);
         }
 
+        layoutContainer.getChildAt(1).setVisibility(View.GONE);
         loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 for (MyOrderItemModel orderItemModel : DBqueries.myOrderItemModelList) {
                     if (!orderItemModel.isCancellationRequested()) {
                         if (!orderItemModel.getOrderStatus().equals("Completed") && !orderItemModel.getOrderStatus().equals("Cancelled")) {
+                            layoutContainer.getChildAt(1).setVisibility(View.VISIBLE);
                             Glide.with(getContext()).load(orderItemModel.getProductImage()).apply(new RequestOptions().placeholder(R.drawable.place_holder_big)).into(currentOrderImage);
                             tvCurrentOrderStatus.setText(orderItemModel.getOrderStatus());
 
@@ -120,50 +122,64 @@ public class MyAccountFragment extends Fragment {
                                     cook_deliver_progress.setProgress(100);
                                     break;
                             }
-                            int i = 0;
-                            for (MyOrderItemModel myOrderItemModel : DBqueries.myOrderItemModelList) {
-                                if (i < 4) {
-                                    if (myOrderItemModel.getOrderStatus().equals("Completed")) {
-                                        Glide.with(getContext()).load(myOrderItemModel.getProductImage()).apply(new RequestOptions().placeholder(R.drawable.place_holder_big)).into((CircleImageView) recentOrdersContainer.getChildAt(i));
-                                        i++;
-                                    }
-                                } else {
-                                    break;
-                                }
-                            }
-                            if (i == 0) {
-                                yourRecentOrderstitle.setText("No recent Orders.");
-                            }
-                            if (i < 3) {
-                                for (int x = i; x < 4; x++) {
-                                    recentOrdersContainer.getChildAt(x).setVisibility(View.GONE);
-                                }
-                            }
-                            loadingDialog.show();
-                            loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                @Override
-                                public void onDismiss(DialogInterface dialog) {
-                                    loadingDialog.setOnDismissListener(null);
-                                    if(DBqueries.addressesModelList.size() == 0){
-                                        addressName.setText("No Address");
-                                        address.setText("-");
-                                        pincode.setText("-");
-                                    } else {
-                                        String nametext,mobileNo;
-                                        nametext = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getFullName();
-                                        mobileNo = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getMobileNo();
-                                        addressName.setText(nametext + " - " + mobileNo);
-                                        address.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAddress());
-                                        pincode.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getPincode());
-                                    }
-                                }
-                            });
-                            DBqueries.loadAddresses(getContext(),loadingDialog,false);
-                            return;
+
                         }
                     }
                 }
-                layoutContainer.getChildAt(1).setVisibility(View.GONE);
+                int i = 0;
+                for (MyOrderItemModel myOrderItemModel : DBqueries.myOrderItemModelList) {
+                    if (i < 4) {
+                        if (myOrderItemModel.getOrderStatus().equals("Completed")) {
+                            Glide.with(getContext()).load(myOrderItemModel.getProductImage()).apply(new RequestOptions().placeholder(R.drawable.place_holder_big)).into((CircleImageView) recentOrdersContainer.getChildAt(i));
+                            i++;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                if (i == 0) {
+                    yourRecentOrderstitle.setText("No recent Orders.");
+                }
+                if (i < 3) {
+                    for (int x = i; x < 4; x++) {
+                        recentOrdersContainer.getChildAt(x).setVisibility(View.GONE);
+                    }
+                }
+                loadingDialog.show();
+                loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        loadingDialog.setOnDismissListener(null);
+                        if(DBqueries.addressesModelList.size() == 0){
+                            addressName.setText("No Address");
+                            address.setText("-");
+                            pincode.setText("-");
+                        } else {
+                            String nametext,mobileNo;
+                            nametext = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getName();
+                            mobileNo = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getMobileNo();
+                            if(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAlternateMobileNo().equals("")) {
+                                addressName.setText(name + " - " + mobileNo);
+                            } else {
+                                addressName.setText(name + " - " + mobileNo + " or " + DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAlternateMobileNo());
+                            }
+                            String flatNo = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getFlatNo();
+                            String locality = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getLocality();
+                            String landmark = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getLandmark();
+                            String city = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getCity();
+                            String state = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getState();
+
+                            if(landmark.equals("")){
+                                address.setText(flatNo + " "+ locality + " "+ city +" "+ state);
+                            } else {
+                                address.setText(flatNo + " "+ locality +" "+ landmark +" "+ city +" "+ state);
+                            }
+
+                            pincode.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getPincode());
+                        }
+                    }
+                });
+                DBqueries.loadAddresses(getContext(),loadingDialog,false);
             }
         });
 

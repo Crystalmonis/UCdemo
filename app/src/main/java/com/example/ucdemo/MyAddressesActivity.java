@@ -39,6 +39,7 @@ public class MyAddressesActivity extends AppCompatActivity {
     private static AddressesAdapter addressesAdapter;
     private Button deliverHereBtn;
     private Dialog loadingDialog;
+    private int mode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +70,7 @@ public class MyAddressesActivity extends AppCompatActivity {
         myAddressesRecyclerView.setLayoutManager(linearLayoutManager);
 
 
-        int mode = getIntent().getIntExtra("MODE", -1);
+        mode = getIntent().getIntExtra("MODE", -1);
         if (mode == SELECT_ADDRESS) {
             deliverHereBtn.setVisibility(View.VISIBLE);
         } else {
@@ -137,10 +138,12 @@ public class MyAddressesActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            if (DBqueries.selectedaddress != previousAddress) {
-                DBqueries.addressesModelList.get(DBqueries.selectedaddress).setSelected(false);
-                DBqueries.addressesModelList.get(previousAddress).setSelected(true);
-                DBqueries.selectedaddress = previousAddress;
+            if(mode == SELECT_ADDRESS) {
+                if (DBqueries.selectedaddress != previousAddress) {
+                    DBqueries.addressesModelList.get(DBqueries.selectedaddress).setSelected(false);
+                    DBqueries.addressesModelList.get(previousAddress).setSelected(true);
+                    DBqueries.selectedaddress = previousAddress;
+                }
             }
             finish();
             return true;
@@ -150,10 +153,12 @@ public class MyAddressesActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (DBqueries.selectedaddress != previousAddress) {
-            DBqueries.addressesModelList.get(DBqueries.selectedaddress).setSelected(false);
-            DBqueries.addressesModelList.get(previousAddress).setSelected(true);
-            DBqueries.selectedaddress = previousAddress;
+        if(mode == SELECT_ADDRESS) {
+            if (DBqueries.selectedaddress != previousAddress) {
+                DBqueries.addressesModelList.get(DBqueries.selectedaddress).setSelected(false);
+                DBqueries.addressesModelList.get(previousAddress).setSelected(true);
+                DBqueries.selectedaddress = previousAddress;
+            }
         }
         super.onBackPressed();
     }
