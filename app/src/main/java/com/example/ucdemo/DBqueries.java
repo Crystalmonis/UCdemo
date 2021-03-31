@@ -56,7 +56,7 @@ public class DBqueries {
     public static List<String> cartList = new ArrayList<>();
     public static List<CartItemModel> cartItemModelList = new ArrayList<>();
 
-    public static int selectedaddress = 0;
+    public static int selectedaddress = -1;
     public static List<AddressesModel> addressesModelList = new ArrayList<>();
 
     public static List<RewardModel> rewardModelList = new ArrayList<>();

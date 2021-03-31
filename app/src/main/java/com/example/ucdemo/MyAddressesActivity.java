@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -57,6 +58,12 @@ public class MyAddressesActivity extends AppCompatActivity {
         loadingDialog.setCancelable(false);
         loadingDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         loadingDialog.getWindow().setBackgroundDrawable(this.getDrawable(R.drawable.slider_background));
+        loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                addressesSaved.setText(String.valueOf(DBqueries.addressesModelList.size()) + " saved addresses");
+            }
+        });
         //////////////Loading dialog
 
         myAddressesRecyclerView = findViewById(R.id.addresses_recycler_view);
@@ -109,7 +116,7 @@ public class MyAddressesActivity extends AppCompatActivity {
             }
         });
 
-        addressesAdapter = new AddressesAdapter(DBqueries.addressesModelList, mode);
+        addressesAdapter = new AddressesAdapter(DBqueries.addressesModelList, mode,loadingDialog);
         myAddressesRecyclerView.setAdapter(addressesAdapter);
         ((SimpleItemAnimator) myAddressesRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         addressesAdapter.notifyDataSetChanged();

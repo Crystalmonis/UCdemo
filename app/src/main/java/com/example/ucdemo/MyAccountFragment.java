@@ -155,27 +155,7 @@ public class MyAccountFragment extends Fragment {
                             address.setText("-");
                             pincode.setText("-");
                         } else {
-                            String nametext,mobileNo;
-                            nametext = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getName();
-                            mobileNo = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getMobileNo();
-                            if(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAlternateMobileNo().equals("")) {
-                                addressName.setText(name + " - " + mobileNo);
-                            } else {
-                                addressName.setText(name + " - " + mobileNo + " or " + DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAlternateMobileNo());
-                            }
-                            String flatNo = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getFlatNo();
-                            String locality = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getLocality();
-                            String landmark = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getLandmark();
-                            String city = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getCity();
-                            String state = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getState();
-
-                            if(landmark.equals("")){
-                                address.setText(flatNo + " "+ locality + " "+ city +" "+ state);
-                            } else {
-                                address.setText(flatNo + " "+ locality +" "+ landmark +" "+ city +" "+ state);
-                            }
-
-                            pincode.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getPincode());
+                            setAddress();
                         }
                     }
                 });
@@ -207,5 +187,38 @@ public class MyAccountFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(!loadingDialog.isShowing()){
+            setAddress();
+        }
+    }
+
+    private void setAddress() {
+        String nametext,mobileNo;
+        nametext = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getName();
+        mobileNo = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getMobileNo();
+        if(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAlternateMobileNo().equals("")){
+            addressName.setText(nametext + " - " + mobileNo);
+        }else {
+            addressName.setText(nametext + " - " + mobileNo+" or "+DBqueries.addressesModelList.get(DBqueries.selectedaddress).getAlternateMobileNo());
+        }
+
+        String flatNo = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getFlatNo();
+        String locality = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getLocality();
+        String landmark = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getLandmark();
+        String city = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getCity();
+        String state = DBqueries.addressesModelList.get(DBqueries.selectedaddress).getState();
+
+        if(landmark.equals("")){
+            address.setText(flatNo + " "+ locality + " "+ city +" "+ state);
+        } else {
+            address.setText(flatNo + " "+ locality +" "+ landmark +" "+ city +" "+ state);
+        }
+
+        pincode.setText(DBqueries.addressesModelList.get(DBqueries.selectedaddress).getPincode());
     }
 }
