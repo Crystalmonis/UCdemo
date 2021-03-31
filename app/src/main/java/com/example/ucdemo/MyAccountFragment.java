@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.w3c.dom.Text;
@@ -38,6 +39,7 @@ public class MyAccountFragment extends Fragment {
     private ProgressBar order_confirm_progress, confirm_cook_progress, cook_deliver_progress;
     private TextView yourRecentOrderstitle;
     private TextView addressName,address,pincode;
+    private FloatingActionButton settingsBtn;
 
     public MyAccountFragment() {
         // Required empty public constructor
@@ -78,6 +80,7 @@ public class MyAccountFragment extends Fragment {
         address = view.findViewById(R.id.address_in_my_addresses);
         pincode = view.findViewById(R.id.address_pincode_in_my_address);
         signOutBtn = view.findViewById(R.id.sign_out_btn_in_my_addresses);
+        settingsBtn = view.findViewById(R.id.settings_btn);
 
         name.setText(DBqueries.fullname);
         email.setText(DBqueries.email);
@@ -183,6 +186,17 @@ public class MyAccountFragment extends Fragment {
                 Intent registerIntent = new Intent(getContext(), UserLoginActivity.class);
                 startActivity(registerIntent);
                 getActivity().finish();
+            }
+        });
+
+        settingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent updateUserInfo = new Intent(getContext(),UpdateUserInfoActivity.class);
+                updateUserInfo.putExtra("Name",name.getText());
+                updateUserInfo.putExtra("Email",email.getText());
+                updateUserInfo.putExtra("Photo",DBqueries.profile);
+                startActivity(updateUserInfo);
             }
         });
 
