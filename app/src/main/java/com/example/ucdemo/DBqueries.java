@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -38,6 +39,9 @@ public class DBqueries {
 
 
     public static FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+
+    public static String email,fullname,profile;
+
     public static List<CategoryModel> categoryModelList = new ArrayList<>();
 
     public static List<List<HomePageModel>> lists = new ArrayList<>();
@@ -471,7 +475,7 @@ public class DBqueries {
                 });
     }
 
-    public static void loadAddresses(final Context context, final Dialog loadingDialog) {
+    public static void loadAddresses(final Context context, final Dialog loadingDialog,boolean goToDeliveryActivity) {
 
         addressesModelList.clear();
         firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_DATA").document("MY_ADDRESSES").get()
@@ -479,7 +483,7 @@ public class DBqueries {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            Intent deliveryIntent;
+                            Intent deliveryIntent = null;
                             if ((long) task.getResult().get("list_size") == 0) {
                                 deliveryIntent = new Intent(context, AddAddressActivity.class);
                                 deliveryIntent.putExtra("INTENT", "deliveryIntent");
@@ -496,9 +500,13 @@ public class DBqueries {
                                         selectedaddress = Integer.parseInt(String.valueOf(x - 1));
                                     }
                                 }
-                                deliveryIntent = new Intent(context, DeliveryActivity.class);
+                                if(goToDeliveryActivity) {
+                                    deliveryIntent = new Intent(context, DeliveryActivity.class);
+                                }
                             }
-                            context.startActivity(deliveryIntent);
+                            if(goToDeliveryActivity) {
+                                context.startActivity(deliveryIntent);
+                            }
                         } else {
                             String error = task.getException().getMessage();
                             Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
@@ -570,7 +578,7 @@ public class DBqueries {
 
     }
 
-    public static void loadOrders(final Context context, final MyOrderAdapter myOrderAdapter, Dialog loadingDialog){
+    public static void loadOrders(final Context context, @Nullable final MyOrderAdapter myOrderAdapter, Dialog loadingDialog){
         myOrderItemModelList.clear();
         firebaseFirestore.collection("USERS").document(FirebaseAuth.getInstance().getUid()).collection("USER_ORDERS").orderBy("time", Query.Direction.DESCENDING).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

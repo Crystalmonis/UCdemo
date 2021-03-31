@@ -190,8 +190,9 @@ public class UserSignupTabFragment extends Fragment {
                                     Map<String, Object> userdata = new HashMap<>();
                                     userdata.put("fullname",name.getText().toString());
                                     userdata.put("email",email.getText().toString());
-                                    userdata.put("phone",phone.getText().toString());
-                                    userdata.put("password",pass.getText().toString());
+                                    userdata.put("profile","");
+                                    //userdata.put("phone",phone.getText().toString());
+                                    //userdata.put("password",pass.getText().toString());
                                     firebaseFirestore.collection("USERS").document(firebaseAuth.getUid())
                                             .set(userdata)
                                             .addOnCompleteListener(new OnCompleteListener<Void>() {

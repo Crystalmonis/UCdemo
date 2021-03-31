@@ -213,6 +213,27 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 changeOrAddAddressesBtn.setVisibility(View.GONE);
 
                 break;
+            case"Out for Cooking":
+                orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                orderedDate.setText(String.valueOf(simpleDateFormat.format(model.getOrderedDate())));
+
+                confirmedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                confirmedDate.setText(String.valueOf(simpleDateFormat.format(model.getConfirmedDate())));
+
+                cookedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                cookedDate.setText(String.valueOf(simpleDateFormat.format(model.getCookedDate())));
+
+                deliveredIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
+                deliveredDate.setText(String.valueOf(simpleDateFormat.format(model.getCompletedDate())));
+
+                order_confirm_progress.setProgress(100);
+                confirm_cook_progress.setProgress(100);
+                cook_deliver_progress.setProgress(100);
+
+                deliveredTitle.setText("Out For Cooking");
+                deliveredBody.setText("Chef has left for your location");
+                //changeOrAddAddressesBtn.setVisibility(View.GONE);
+                break;
             case "Completed":
                 orderedIndicator.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.successGreen)));
                 orderedDate.setText(String.valueOf(simpleDateFormat.format(model.getOrderedDate())));
