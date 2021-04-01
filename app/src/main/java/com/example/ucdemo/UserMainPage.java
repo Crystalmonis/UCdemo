@@ -214,7 +214,6 @@ public class UserMainPage extends AppCompatActivity {
         if (currentUser == null) {
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
         } else {
-            DBqueries.checkNotifications(false);
             if (DBqueries.email == null) {
                 FirebaseFirestore.getInstance().collection("USERS").document(currentUser.getUid())
                         .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -265,7 +264,7 @@ public class UserMainPage extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        DBqueries.checkNotifications(true);
+        DBqueries.checkNotifications(true,null);
     }
 
     @Override
@@ -296,41 +295,63 @@ public class UserMainPage extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (currentFragment == HomeFragment) {
+        if(currentFragment== HomeFragment){
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             getMenuInflater().inflate(R.menu.user_main_page, menu);
 
             MenuItem cartItem = menu.findItem(R.id.main_cart_icon);
             cartItem.setActionView(R.layout.badge_layout);
-            ImageView badgeIcon = cartItem.getActionView().findViewById(R.id.badge_icon);
+            ImageView badgeIcon=cartItem.getActionView().findViewById(R.id.badge_icon);
             badgeIcon.setImageResource(R.drawable.cart_black);
-            badgeCount = cartItem.getActionView().findViewById(R.id.badge_count);
+            badgeCount=cartItem.getActionView().findViewById(R.id.badge_count);
 
-            if (currentUser != null) {
-                if (DBqueries.cartList.size() == 0) {
-                    DBqueries.loadCartList(UserMainPage.this, new Dialog(UserMainPage.this), false, badgeCount, new TextView(UserMainPage.this));
-                } else {
+            MenuItem notificationItem = menu.findItem(R.id.main_notification_icon);
+            notificationItem.setActionView(R.layout.badge_layout);
+            ImageView badgeeIcon=notificationItem.getActionView().findViewById(R.id.badge_icon);
+            badgeeIcon.setImageResource(R.drawable.notification);
+            TextView notifyCount=notificationItem.getActionView().findViewById(R.id.badge_count);
+
+            if(currentUser!=null){
+                DBqueries.checkNotifications(false,notifyCount);
+            }
+            notificationItem.getActionView().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(currentUser == null){
+                        signInDialog.show();
+                    }else {
+                        startActivity(new Intent(UserMainPage.this,NotificationActivity.class));
+                    }
+                }
+            });
+
+            if(currentUser!=null){
+                if(DBqueries.cartList.size() == 0){
+                    DBqueries.loadCartList(UserMainPage.this,new Dialog(UserMainPage.this),false,badgeCount,new TextView(UserMainPage.this));
+                }else {
                     badgeCount.setVisibility(View.VISIBLE);
-                    if (DBqueries.cartList.size() < 99) {
+                    if(DBqueries.cartList.size()<99) {
                         badgeCount.setText(String.valueOf(DBqueries.cartList.size()));
-                    } else {
+                    }else {
                         badgeCount.setText("99");
                     }
                 }
+
             }
 
             cartItem.getActionView().setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    if (currentUser == null) {
+                public void onClick(View view) {
+                    if(currentUser == null){
                         signInDialog.show();
-                    } else {
-                        gotoFragment("My Cart", new MyCartFragment(), CART_FRAGMENT);
+                    }else {
+                        gotoFragment("My Cart",new MyCartFragment(),CART_FRAGMENT);
                     }
                 }
             });
+
         }
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
 

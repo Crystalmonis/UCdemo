@@ -629,7 +629,7 @@ public class DBqueries {
                 });
     }
 
-    public static void checkNotifications(boolean remove){
+    public static void checkNotifications(boolean remove,@Nullable TextView notifyCount){
 
         if(remove){
             registration.remove();
@@ -641,8 +641,24 @@ public class DBqueries {
 
                             if(value != null && value.exists()){
                                 notificationModelList.clear();
+                                int unread = 0;
                                 for (long x = 0; x < (long) value.get("list_size"); x++) {
-                                    notificationModelList.add(new NotificationModel(value.get("Image_"+x).toString(),value.get("Body_"+x).toString(),value.getBoolean("Read_"+x)));
+                                    notificationModelList.add(0,new NotificationModel(value.get("Image_"+x).toString(),value.get("Body_"+x).toString(),value.getBoolean("Read_"+x)));
+                                    if(!value.getBoolean("Read_"+x)){
+                                        unread++;
+                                        if(notifyCount != null){
+                                            if(unread > 0) {
+                                                notifyCount.setVisibility(View.VISIBLE);
+                                                if (unread < 99) {
+                                                    notifyCount.setText(String.valueOf(unread));
+                                                } else {
+                                                    notifyCount.setText("99");
+                                                }
+                                            } else {
+                                                notifyCount.setVisibility(View.INVISIBLE);
+                                            }
+                                        }
+                                    }
                                 }
                                 if(NotificationActivity.adapter != null){
                                     NotificationActivity.adapter.notifyDataSetChanged();
